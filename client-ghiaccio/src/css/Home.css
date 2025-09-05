@@ -1,0 +1,63 @@
+/* Layout principale */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #1c1c2b, #2e2f47);
+  color: #f8f9fa;
+  margin-top: 100px;
+}
+
+/* Sezione benvenuto */
+.home-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.home-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.home-header p {
+  font-size: 1rem;
+  color: #ddd;
+}
+
+/* Contenitore delle cards a tutta pagina */
+.home-content {
+  display: flex;
+  flex: 1; /* occupa tutto lo spazio verticale rimasto */
+  gap: 1.5rem;
+  flex-wrap: wrap; /* così se lo schermo è stretto vanno sotto */
+  justify-content: space-evenly; /* distribuisce le card su tutta la riga */
+  align-items: stretch; /* le fa avere tutte la stessa altezza */
+  width: 100%; /* occupa tutta la larghezza disponibile */
+}
+
+/* Card generica */
+.home-card {
+  flex: 1 1 280px; /* base più piccola: 280px */
+  max-width: 320px; /* non diventano enormi su schermi larghi */
+  max-height: 300px;
+  background: linear-gradient(145deg, #3a3f58, #4b4e6a);
+  border-radius: 0.8rem;
+  padding: 1.2rem; /* leggermente ridotto */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+  border: 1px solid #444;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-card h3 {
+  color: #ffd700;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.home-card p {
+  margin: 0.4rem 0;
+  font-size: 1rem;
+  color: #f1f1f1;
+}
