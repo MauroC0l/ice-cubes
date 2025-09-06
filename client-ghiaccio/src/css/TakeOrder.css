@@ -27,10 +27,8 @@
   color: #ddd;
 }
 
-
-
 /* Contenitore delle cards */
-.home-content {
+.tk-content {
   display: flex;
   flex: 1; 
   gap: 1.5rem;
@@ -42,7 +40,7 @@
 }
 
 /* Contenitore del form con cards affiancate */
-.home-order-content {
+.tk-order-content {
   display: flex;
   flex-direction: column;      /* contenuto verticale */
   justify-content: space-between; /* carte in alto, pulsanti in basso */
@@ -58,7 +56,7 @@
 }
 
 /* Card generica con altezza minima dinamica e contenuto centrato */
-.home-card {
+.tk-card {
   width: 320px;        /* larghezza fissa */
   min-height: 260px;   /* altezza minima */
   background: linear-gradient(145deg, #3a3f58, #4b4e6a);
@@ -78,7 +76,7 @@
 }
 
 
-.home-order-card {
+.tk-order-card {
   width: 320px;        
   min-height: 260px;   
   background: linear-gradient(145deg, #3a3f58, #4b4e6a);
@@ -98,13 +96,13 @@
 }
 
 
-.home-card h3 {
+.tk-card h3 {
   color: #ffd700;
   font-size: 1.4rem;
   margin-bottom: 1rem;
 }
 
-.home-card p {
+.tk-card p {
   margin: 0.4rem 0;
   font-size: 1rem;
   color: #f1f1f1;
@@ -200,3 +198,8 @@
 }
 
 
+.error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
