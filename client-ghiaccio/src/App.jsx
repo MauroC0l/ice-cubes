@@ -10,6 +10,7 @@ import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
 import ServerDownDisplay from "./components/ServerDownDisplay.jsx";
+import TakeOrder from "./components/TakeOrder.jsx"
 
 import { checkAuth, handleLogout } from "./api/API.mjs";
 
@@ -111,6 +112,14 @@ function App() {
               )
             }
           />
+
+          {/* Redirect from /make-order to /make-orders */}
+          <Route path='/make-order' element={ <TakeOrder 
+            isAdmin={isAdmin}
+            username={user?.username}
+            handleLogoutWrapper={handleLogoutWrapper}
+            isAuth={isAuth}
+          /> } />
 
           {/* Catch-all route for 404 Not Found */}
           <Route

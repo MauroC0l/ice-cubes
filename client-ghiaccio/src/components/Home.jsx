@@ -2,11 +2,17 @@ import { useState, useEffect } from 'react';
 import MyNavbar from './MyNavbar';
 import { fetchFreezers, fetchOrders } from '../api/API.mjs';
 import '../css/Home.css';
+import { Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+
 
 function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
   const [freezers, setFreezers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [viewOrders, setViewOrders] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -25,7 +31,6 @@ function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
         setLoading(false);
       }
     };
-
     loadData();
   }, [isAdmin]);
 
@@ -39,6 +44,19 @@ function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
   }
 
   if (loading) return <div className="home-page">Loading...</div>;
+
+  function showMyOrders() {
+    return (
+      <div className="home-card">
+        <h3>I miei ordini</h3>
+        <p>Qui comparirà la lista dei tuoi ordini.</p>
+        <Button onClick={() => setViewOrders(false)} variant="secondary">
+          Torna indietro
+        </Button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="home-page">
@@ -55,7 +73,6 @@ function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
 
       {isAdmin ? (
         <div className="home-content">
-          {/* Card ordini */}
           <div className="home-card">
             <h3>📦 Ordini</h3>
             <p>Totali: {orders.length}</p>
@@ -64,20 +81,31 @@ function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
             <p>Conclusi: {orders.filter(o => o.status === 'completed').length}</p>
             <p>Cancellati: {orders.filter(o => o.status === 'deleted').length}</p>
           </div>
-
-          {/* Card ghiaccio */}
           <div className="home-card">
             <h3>❄️ Ghiaccio</h3>
-            <p>
-              Disponibile: {getAllIce().total_kg}/{getAllIce().total_capacity} kg
-            </p>
+            <p>Disponibile: {getAllIce().total_kg}/{getAllIce().total_capacity} kg</p>
             <p>Sacchi: {getAllIce().total_bags}</p>
           </div>
         </div>
       ) : (
-        <div className="home-card">
-          <h3>Utente standard</h3>
-          <p>I dati amministrativi non sono disponibili.</p>
+        <div className="home-content">
+          {!viewOrders && (
+            <div className="home-content">
+              <div className="home-card">
+                <h3>Effettua un ordine</h3>
+                <Button onClick={() => navigate("/make-order")} variant="primary">
+                  Effettua un ordine
+                </Button>
+              </div>
+              <div className="home-card">
+                <h3>Guarda i miei ordini</h3>
+                <Button onClick={() => navigate("/my-orders")} variant="primary">
+                  Vai ai miei ordini
+                </Button>
+              </div>
+            </div>
+          )}
+          {viewOrders && showMyOrders()}
         </div>
       )}
     </div>
