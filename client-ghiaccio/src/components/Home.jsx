@@ -6,7 +6,7 @@ import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 
-function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
+function Home({ handleLogoutWrapper, name, isAuth, isAdmin }) {
   const [freezers, setFreezers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ function Home({ handleLogoutWrapper, username, isAuth, isAdmin }) {
       />
 
       <div className="home-header">
-        <h1>Welcome {username || 'to the Home Page'}</h1>
+        <h1>Welcome {name || 'to the Home Page'}</h1>
         <p>Il tuo ruolo è <strong>{isAdmin ? 'admin' : 'customer'}</strong></p>
       </div>
 

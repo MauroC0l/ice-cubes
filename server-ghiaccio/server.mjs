@@ -71,6 +71,7 @@ function isAdmin(req, res, next) {
 // ==================== API ROUTES ====================
 app.listen(3001, () => console.log('Server in ascolto su http://localhost:3001'));
 
+// -------------------- LOGIN --------------------
 app.post('/api/login', [
   body('email').trim().isEmail().withMessage('Devi inserire una email valida'),
   body('password').trim().isLength({ min: 1 }).withMessage('Devi inserire una password')
@@ -90,39 +91,62 @@ app.post('/api/login', [
       if (rememberMe) req.session.cookie.maxAge = 10 * 60 * 1000;
       else { delete req.session.cookie.expires; delete req.session.cookie.maxAge; }
 
-      return res.json({ success: true, user: { username: user.username, email: user.email, role: user.role } });
+      return res.json({ success: true, user: { name: user.name, email: user.email, role: user.role } });
     });
   })(req, res, next);
 });
 
+// -------------------- REGISTER --------------------
 app.post('/api/register', [
-  body('username').trim().isLength({ min: 3 }).withMessage('Username troppo corto'),
+  body('name').trim().isLength({ min: 1 }).withMessage('Il nome è obbligatorio'),
+  body('surname').trim().isLength({ min: 1 }).withMessage('Il cognome è obbligatorio'),
+  body('phoneNumber').trim().isLength({ min: 1 }).withMessage('Il numero di telefono è obbligatorio'),
+  body('phoneNumber').trim().matches(/^3\d{9}$/).withMessage('Il numero di telefono non è valido'),
   body('email').trim().isEmail().withMessage('Email non valida'),
-  body('password').trim().isLength({ min: 6 }).withMessage('La password deve avere almeno 6 caratteri')
+  body('password').trim().isLength({ min: 1 }).withMessage('Password obbligatoria'),
+  body('confirmPassword').trim().custom((value, { req }) => value === req.body.password).withMessage('Le password non corrispondono')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.json({ success: false, isValidationError: true, errorMsg: errors.array().map(e => e.msg) });
 
   try {
-    const { username, email, password } = req.body;
+    const { name, surname, email, password, phoneNumber } = req.body;
+
+    console.log("\n\n credenziali ricevute: ", surname);
+
+    // Controlli duplicati
     if (await dao.getUserByEmail(email)) return res.json({ success: false, errorMsg: 'Email già registrata' });
+    if (await dao.getUserByNameAndSurname(name, surname)) return res.json({ success: false, errorMsg: 'Nome e cognome già in uso' });
+    if (await dao.getUserByPhoneNumber(phoneNumber)) return res.json({ success: false, errorMsg: 'Numero di telefono già in uso' });
 
     const salt = crypto.randomBytes(16).toString('hex');
     const hashedPassword = await hashPassword(password, salt);
-    const newUserId = await dao.addUser({ username, email, password: hashedPassword, salt, role: 'customer' });
+
+    // Corretto: inseriamo surname e phoneNumber
+    const newUserId = await dao.addUser({ 
+      name, 
+      surname, 
+      email, 
+      phoneNumber, 
+      password: hashedPassword, 
+      salt, 
+      role: 'customer' 
+    });
+
     const newUser = await dao.getUserById(newUserId);
 
     req.login(newUser, (err) => {
       if (err) return res.json({ success: false, errorMsg: 'Errore login dopo registrazione' });
-      return res.json({ success: true, user: { username: newUser.username, email: newUser.email, role: newUser.role } });
+      return res.json({ success: true, user: { name: newUser.name, email: newUser.email, role: newUser.role } });
     });
-
+    
   } catch (err) {
     console.error("Registration error:", err);
     return res.json({ success: false, errorMsg: 'Errore interno durante la registrazione' });
   }
 });
 
+// -------------------- SUBMIT ORDER --------------------
 app.post('/api/submit-order', isAuthenticated, async (req, res) => {
   try {
     const { quantity, request_date, delivery_date, ice_type } = req.body;
@@ -135,6 +159,7 @@ app.post('/api/submit-order', isAuthenticated, async (req, res) => {
   }
 });
 
+// -------------------- LOGOUT --------------------
 app.post('/api/logout', (req, res) => {
   req.logout(err => {
     if (err) return res.json({ success: false, message: 'Logout fallito' });
@@ -146,8 +171,9 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
+// -------------------- GET CURRENT USER --------------------
 app.get('/api/user', (req, res) => {
-  if (req.isAuthenticated()) return res.json({ isAuth: true, user: { username: req.user.username, email: req.user.email, role: req.user.role } });
+  if (req.isAuthenticated()) return res.json({ isAuth: true, user: { name: req.user.name, email: req.user.email, role: req.user.role } });
   return res.json({ isAuth: false });
 });
 

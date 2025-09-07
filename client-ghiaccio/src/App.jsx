@@ -72,7 +72,7 @@ function App() {
               <Home
                 isAdmin={isAdmin}
                 handleLogoutWrapper={handleLogoutWrapper}
-                username={user?.username}
+                name={user?.name}
                 isAuth={isAuth}
               />
             }
@@ -116,7 +116,7 @@ function App() {
           {/* Redirect from /make-order to /make-orders */}
           <Route path='/make-order' element={ <TakeOrder 
             isAdmin={isAdmin}
-            username={user?.username}
+            name={user?.name}
             handleLogoutWrapper={handleLogoutWrapper}
             isAuth={isAuth}
           /> } />

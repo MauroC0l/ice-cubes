@@ -2,17 +2,17 @@ import sqlite3 from 'sqlite3';
 
 // Funzione per aprire il DB
 function openDb() {
-    return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database('./iceDatabase.sqlite', (err) => {
-            if (err) reject(err);
-            else resolve(db);
-        });
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database('./iceDatabase.sqlite', (err) => {
+      if (err) reject(err);
+      else resolve(db);
     });
+  });
 }
 
 // Funzione per chiudere il DB
 function closeDb(db) {
-    db.close((err) => { if (err) console.error("Error closing database:", err.message); });
+  db.close((err) => { if (err) console.error("Error closing database:", err.message); });
 }
 
 // ===== Users =====
@@ -36,11 +36,29 @@ export const getUserById = (id) =>
 
 export const addUser = (user) =>
   openDb().then(db => new Promise((resolve, reject) => {
-    const sql = 'INSERT INTO user(username, email, password, salt, role) VALUES(?, ?, ?, ?, ?)';
-    db.run(sql, [user.username, user.email, user.password, user.salt, user.role], function (err) {
+    const sql = 'INSERT INTO user(name, surname, email, phoneNumber, password, salt, role) VALUES(?, ?, ?, ?, ?, ?, ?)';
+    db.run(sql, [user.name, user.surname, user.email, user.phoneNumber, user.password, user.salt, user.role], function (err) {
       closeDb(db);
       if (err) return reject(err);
       resolve(this.lastID);
+    });
+  }));
+
+export const getUserByNameAndSurname = (name, surname) =>
+  openDb().then(db => new Promise((resolve, reject) => {
+    db.get('SELECT * FROM user WHERE name = ? AND surname = ?', [name, surname], (err, row) => {
+      closeDb(db);
+      if (err) return reject(err);
+      resolve(row || null);
+    });
+  }));
+
+export const getUserByPhoneNumber = (phoneNumber) =>
+  openDb().then(db => new Promise((resolve, reject) => {
+    db.get('SELECT * FROM user WHERE phoneNumber = ?', [phoneNumber], (err, row) => {
+      closeDb(db);
+      if (err) return reject(err);
+      resolve(row || null);
     });
   }));
 

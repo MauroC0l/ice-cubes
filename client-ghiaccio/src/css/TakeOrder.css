@@ -37,6 +37,17 @@
   margin-top: 2%;
 }
 
+/* Cards */
+.-content {
+  display: flex;
+  flex: 1;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
 /* Wrapper per affiancare le card orizzontalmente */
 .cards-wrapper {
   display: flex;
@@ -65,7 +76,7 @@
 }
 
 .tk-order-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   border-color: #22AED1; /* highlight */
 }
@@ -174,16 +185,4 @@
 
 .order-buttons .btn-secondary:hover {
   background-color: #4b8ea0;
-}
-
-/* Responsive per schermi piccoli */
-@media (max-width: 768px) {
-  .cards-wrapper {
-    flex-direction: column; /* stacking verticale su mobile */
-    max-width: 100%;
-  }
-
-  .tk-order-card {
-    width: 100%;
-  }
 }

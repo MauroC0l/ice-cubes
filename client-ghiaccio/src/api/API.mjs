@@ -18,12 +18,12 @@ export const loginHandler = (email, password, rememberMe) =>
   });
 
 // Register handler
-export const registerHandler = (username, email, password) =>
+export const registerHandler = (name, surname, phoneNumber, email, password, confirmPassword) =>
   fetch(`${API_BASE}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ username, email, password })
+    body: JSON.stringify({ name, surname, phoneNumber, email, password, confirmPassword })
   })
   .then(res => res.json())
   .then(data => {

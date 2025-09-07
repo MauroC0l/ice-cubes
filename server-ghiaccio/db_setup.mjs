@@ -6,11 +6,11 @@ const databaseName = 'iceDatabase.sqlite';
 
 // Utenti iniziali
 const createdUserList = await Promise.all([
-    User.create("franky", "franky@example.com", "password1", "customer"),
-    User.create("mauro", "mauro@example.com", "password2", "customer"),
-    User.create("giovanni", "giovanni@example.com", "password3", "customer"),
-    User.create("luca", "luca@example.com", "password4", "customer"),
-    User.create("admin", "admin@admin.com", "admin", "admin"),
+    User.create("riccardo", "riccardo@example.com", "cognome", "311111111", "password1", "customer"),
+    User.create("mauro", "mauro@example.com", "cognome", "322222222", "password2", "customer"),
+    User.create("giovanni", "giovanni@example.com", "cognome", "333333333", "password3", "customer"),
+    User.create("luca", "luca@example.com", "cognome", "344444444", "password4", "customer"),
+    User.create("admin", "admin@admin.com", "cognome", "355555555", "admin", "admin"),
 ]);
 
 // Freezers iniziali
@@ -38,7 +38,9 @@ async function setupDatabase() {
     // Creazione tabelle
     await db.run(`CREATE TABLE IF NOT EXISTS user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
+        name TEXT NOT NULL,
+        surname TEXT NOT NULL,
+        phoneNumber TEXT NOT NULL,
         password TEXT NOT NULL,
         salt TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
@@ -67,21 +69,23 @@ async function setupDatabase() {
     await insertData(db);
 }
 
-// Inserimento dati iniziali
 async function insertData(db) {
-    const sqlInsertUser = await db.prepare("INSERT INTO user (username, password, salt, email, role) VALUES (?, ?, ?, ?, ?)");
-
+    // Inserimento utenti
+    const sqlInsertUser = await db.prepare(
+        "INSERT INTO user (name, surname, phoneNumber, password, salt, email, role) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    );
     for (const user of createdUserList) {
         try {
-            const result = await sqlInsertUser.run(user.username, user.password, user.salt, user.email, user.role);
-            user.id = result.lastID;  // aggiorno ID generato dal DB
+            const result = await sqlInsertUser.run(user.name, user.surname, user.phoneNumber, user.password, user.salt, user.email, user.role);
+            user.id = result.lastID;
         } catch (err) {
             console.error("❌ Error inserting user:", err.message);
         }
     }
-    console.log("✅ Users inserted successfully");
     await sqlInsertUser.finalize();
+    console.log("✅ Users inserted successfully");
 
+    // Inserimento freezer
     const sqlInsertFreezer = await db.prepare("INSERT INTO freezer (name, n_bags, n_kg, n_kg_max) VALUES (?, ?, ?, ?)");
     for (const freezer of retrievedFreezerList) {
         try {
@@ -91,27 +95,20 @@ async function insertData(db) {
             console.error("❌ Error inserting freezer:", err.message);
         }
     }
-    console.log("✅ Freezers inserted successfully");
     await sqlInsertFreezer.finalize();
+    console.log("✅ Freezers inserted successfully");
 
+    // Inserimento ordini
     const sqlInsertOrder = await db.prepare(
         "INSERT INTO orders (quantity, request_date, delivery_date, ice_type, status, user_id) VALUES (?, ?, ?, ?, ?, ?)"
     );
-
     for (let i = 0; i < createdOrderList.length; i++) {
         const order = createdOrderList[i];
         const assignedUser = createdUserList[i % createdUserList.length];
-        order.user_id = assignedUser.id; // assegno user_id all'ordine
+        order.user_id = assignedUser.id;
 
         try {
-            const result = await sqlInsertOrder.run(
-                order.quantity,
-                order.request_date,
-                order.delivery_date,
-                order.ice_type,
-                order.status,
-                order.user_id
-            );
+            const result = await sqlInsertOrder.run(order.quantity, order.request_date, order.delivery_date, order.ice_type, order.status, order.user_id);
             order.id = result.lastID;
         } catch (err) {
             console.error("❌ Error inserting order:", err.message);

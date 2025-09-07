@@ -1,9 +1,11 @@
 import crypto from 'crypto';
 
 export class User {
-    constructor({ id = null, username, password_hash, salt, email, role = '' }) {
+    constructor({ id = null, name, surname, phoneNumber, password_hash, salt, email, role = '' }) {
         this.id = id;
-        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
         this.password = password_hash;
         this.salt = salt;
         this.email = email;
@@ -11,7 +13,7 @@ export class User {
     }
 
     // Creazione utente con hash + salt
-    static async create(username, email, plainPassword, role = '') {
+    static async create(name, email, surname, phoneNumber, plainPassword, role = '') {
         const salt = crypto.randomBytes(16).toString('hex');
         const password_hash = await new Promise((resolve, reject) => {
             crypto.scrypt(plainPassword, salt, 64, (err, derivedKey) => {
@@ -20,7 +22,7 @@ export class User {
             });
         });
 
-        return new User({ username, password_hash, salt, email, role });
+        return new User({ name, surname, phoneNumber, password_hash, salt, email, role });
     }
 }
 
