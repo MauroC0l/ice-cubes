@@ -1,0 +1,9 @@
+- Sistemare alert per invio degli ordini 
+- Mostrare un riepilogo dell'ordine
+- Inserire la modifica degli ordini (entro tot ore dall'invio)
+- Inserire la DATAAAA negli ordini
+
+
+- Inserire la modifica del profilo
+
+
