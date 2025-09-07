@@ -98,10 +98,3 @@
 .btn-primary:hover {
   background-color: #22AED1;
 }
-
-/* Footer */
-.login-footer {
-  font-size: 0.75rem;
-  margin-top: 1rem;
-  color: #6D8EA0;
-}

@@ -67,9 +67,9 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin }) {
       />
 
       <div className="home-header">
-        <h1>Welcome {name || 'to the Home Page'}</h1>
+        <h1>Benvenuto {name ? name : 'su Ice Cubes'}</h1>
         <p>Il tuo ruolo è <strong>{isAdmin ? 'admin' : 'customer'}</strong></p>
-      </div>
+      </div> 
 
       {isAdmin ? (
         <div className="home-content">

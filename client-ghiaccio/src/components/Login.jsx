@@ -75,7 +75,7 @@ function Login({ makeAuth, setUser, logo, serverStatus, setServerStatus, setIsAd
                   type="text"
                   size="lg"
                   placeholder="Email"
-                  autoComplete="name"
+                  autoComplete="username"
                 />
               </Form.Group>
 

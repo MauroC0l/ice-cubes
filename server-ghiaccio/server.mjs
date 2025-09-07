@@ -147,12 +147,20 @@ app.post('/api/register', [
 });
 
 // -------------------- SUBMIT ORDER --------------------
-app.post('/api/submit-order', isAuthenticated, async (req, res) => {
+app.post('/api/submit-order', async (req, res) => {
   try {
+    if(req.body.name){
+
+    }
+    console.log("Order data received:", req.body);
+    /*
     const { quantity, request_date, delivery_date, ice_type } = req.body;
     const order = { quantity, request_date, delivery_date, ice_type, status: 'pending', user_id: req.user.id };
     await dao.submitOrder(order);
+    
+    */
     return res.json({ success: true });
+
   } catch (err) {
     console.error('Error submitting order:', err);
     return res.status(500).json({ success: false, message: 'Internal server error' });
