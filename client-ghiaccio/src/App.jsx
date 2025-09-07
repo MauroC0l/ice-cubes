@@ -57,7 +57,7 @@ function App() {
   if (loading) return (
     <div className="auth-loading-container">
       <div className="spinner" aria-label="Loading spinner" role="status" />
-      Checking authentication...
+      Accesso in corso..
     </div>
   );
 

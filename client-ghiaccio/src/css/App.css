@@ -1,10 +1,11 @@
-/* Font Style */
+/* =========================
+   FONT STYLE & GLOBAL WRAPPER
+========================= */
 #root {
   margin: 0 auto;
   text-align: center;
 }
 
-/* Global wrapper per compensare la navbar fissa */
 .page-wrapper {
   padding-top: 70px; /* uguale all'altezza della navbar */
   display: flex;
@@ -20,7 +21,9 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* evita scrollbar globale */
-  background: linear-gradient(135deg, #292940, #3a3d56);
+  background: #f9fafb; /* sfondo coerente con home/login */
+  color: #182825;      /* testo scuro coerente */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;
 }
 
@@ -31,25 +34,26 @@ html, body, #root {
   margin: 0;
 }
 
-/* ----- Loader styling ----- */
+/* =========================
+   LOADER / AUTH LOADING
+========================= */
 .auth-loading-container {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 3rem;
   gap: 12px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 500;
   font-size: 1.1rem;
-  color: #6b7280;
+  color: #6D8EA0; /* grigio neutro coerente */
   user-select: none;
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid #a5b4fc;
-  border-top: 3px solid #4f46e5;
+  border: 3px solid #22AED1; /* colore highlight coerente */
+  border-top: 3px solid #016FB9; /* blu principale */
   border-radius: 50%;
   animation: spin 1s linear infinite;
   flex-shrink: 0;
@@ -58,5 +62,19 @@ html, body, #root {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Responsive loader (piccoli schermi) */
+@media (max-width: 480px) {
+  .auth-loading-container {
+    font-size: 1rem;
+    gap: 8px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
   }
 }

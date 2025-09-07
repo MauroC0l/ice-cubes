@@ -74,6 +74,7 @@ function TakeOrder({ handleLogoutWrapper, username, isAuth, isAdmin }) {
 
         <div className="tk-order-content">
           <form className="order-form" onSubmit={handleSubmit}>
+            
             <div className="cards-wrapper">
               <div className="tk-order-card">
                 <h3 className="cards-header">Informazioni di recapito</h3>

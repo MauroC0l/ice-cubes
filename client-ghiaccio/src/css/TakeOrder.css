@@ -1,167 +1,102 @@
-/* Layout principale */
 .tk-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, #1c1c2b, #2e2f47);
-  color: #f8f9fa;
-  margin-top: 100px;
+  background: #f9fafb; /* sfondo chiaro coerente */
+  color: #182825;
+  margin-top: 80px;
 }
 
-/* Sezione benvenuto */
+/* Header */
 .tk-header {
   text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 5%;
 }
 
 .tk-header h1 {
-  font-size: 3.5rem;
-  font-weight: bold;
-  color: #ffd700;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #016FB9; /* blu principale */
 }
+
 .tk-header p {
   font-size: 1rem;
-  color: #ddd;
+  color: #6D8EA0; /* grigio neutro */
 }
 
-/* Contenitore delle cards */
-.tk-content {
-  display: flex;
-  flex: 1; 
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;  /* ✅ centrato orizzontalmente */
-  align-items: center;      /* ✅ centrato verticalmente */
-  width: 100%;
-  text-align: center;
-}
-
-/* Contenitore del form con cards affiancate */
+/* Contenitore principale delle cards */
 .tk-order-content {
   display: flex;
-  flex-direction: column;      /* contenuto verticale */
-  justify-content: space-between; /* carte in alto, pulsanti in basso */
-  align-items: center;         /* centrati orizzontalmente */
-  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
-  text-align: center;
-  padding: 1rem 0;
-  min-height: 400px;           /* garantisce spazio per pulsanti in basso */
-
-
-  margin-top: 5rem;
+  max-width: 720px; /* due card da 320px + gap */
+  margin: 0 auto;
+  margin-top: 2%;
 }
 
-/* Card generica con altezza minima dinamica e contenuto centrato */
-.tk-card {
-  width: 320px;        /* larghezza fissa */
-  min-height: 260px;   /* altezza minima */
-  background: linear-gradient(145deg, #3a3f58, #4b4e6a);
-  border-radius: 0.8rem;
-  padding: 1.2rem;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
-  border: 1px solid #444;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  display: flex;
-  flex-direction: column;      /* contenuto verticale */
-  justify-content: center;     /* centrato verticalmente */
-  align-items: center;         /* centrato orizzontalmente */
-
-  margin: 2rem;
-  text-align: center;
-}
-
-
-.tk-order-card {
-  width: 320px;        
-  min-height: 260px;   
-  background: linear-gradient(145deg, #3a3f58, #4b4e6a);
-  border-radius: 0.8rem;
-  padding: 1.2rem;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
-  border: 1px solid #444;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  display: flex;
-  flex-direction: column;      /* contenuto verticale */
-  justify-content: flex-start; /* header sempre in alto */
-  align-items: center;         /* centrato orizzontalmente */
-
-  margin: 2rem;
-  text-align: center;
-}
-
-
-.tk-card h3 {
-  color: #ffd700;
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.tk-card p {
-  margin: 0.4rem 0;
-  font-size: 1rem;
-  color: #f1f1f1;
-}
-
-
-
-
-
-/* Wrapper per affiancare le card */
+/* Wrapper per affiancare le card orizzontalmente */
 .cards-wrapper {
   display: flex;
-  flex-direction: row;          /* carte su una riga */
-  gap: 1.5rem;
-  justify-content: center;      /* centrato orizzontalmente */
+  flex-direction: row;      /* carte affiancate */
+  gap: 1.5rem;              /* distanza tra le carte */
+  justify-content: center;   /* centrato */
+  flex-wrap: nowrap;         /* non andare a capo */
   width: 100%;
-  flex-wrap: nowrap;
 }
 
+/* Card generica */
+.tk-order-card {
+  width: 320px;
+  min-height: 260px;
+  background: #ffffff;
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+}
+
+.tk-order-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: #22AED1; /* highlight */
+}
+
+/* Titoli delle card */
 .cards-header {
-  font-size: 1.4rem;               
-  font-weight: 700;                
-  color: #ffd700;                  
-  text-align: center;              
-  width: 100%;                     
-  padding: 0.6rem 0;               
-  border-bottom: 2px solid #ffd700; 
-  margin-bottom: 1rem;             
-  align-self: stretch;             /* occupa tutta la larghezza della card */
-}
-
-
-
-
-/* Contenitore del form */
-.order-form {
-  display: flex;
-  flex-direction: column;       /* card in alto, pulsanti in basso */
-  gap: 2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #016FB9;
+  margin-bottom: 1rem;
   width: 100%;
-  align-items: center;          /* centra tutto orizzontalmente */
+  text-align: center;
+  border-bottom: 2px solid #016FB9;
+  padding-bottom: 0.5rem;
 }
 
-/* Contenitore dei pulsanti */
-.order-buttons {
-  display: flex;
-  flex-direction: row;       /* affianca i pulsanti */
-  gap: 1rem;                 /* distanza tra i pulsanti */
-  justify-content: center;   /* centrati orizzontalmente */
-  margin-top: 1rem;
-  width: 100%;
-}
-
-/* Tutti i pulsanti dentro order-buttons */
-.order-buttons .btn {
-  flex: 1;                   /* prendono uguale spazio disponibile */
-  max-width: 180px;          /* larghezza massima */
-  min-width: 150px;          /* larghezza minima uguale per tutti */
-  text-align: center;        /* centra il testo */
+/* Contenuto delle card */
+.tk-order-card p {
+  font-size: 1rem;
+  color: #182825;
+  margin: 0.4rem 0;
 }
 
 /* Form interno alle card */
+.order-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 2rem;
+}
+
 .order-form .form-group {
   display: flex;
   flex-direction: column;
@@ -171,7 +106,7 @@
 }
 
 .order-form label {
-  color: #ffd700;
+  color: #016FB9;
   font-weight: 600;
   margin-bottom: 0.4rem;
   font-size: 0.95rem;
@@ -179,26 +114,76 @@
 
 .order-form input {
   width: 100%;
-  padding: 0.5rem;
-  border-radius: 0.4rem;
-  border: 1px solid #555;
-  background: #2e2f47;
-  color: #f8f9fa;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+  background: #ffffff;
+  color: #182825;
   font-size: 1rem;
-  transition: border 0.2s ease;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .order-form input:focus {
   outline: none;
-  border-color: #ffd700;
-  box-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+  border-color: #22AED1;
+  box-shadow: 0 0 5px rgba(34, 174, 209, 0.25);
 }
 
-
+/* Errori di validazione */
 .error {
-  color: #ff4d4d;
+  color: #b00020;
   font-size: 0.9rem;
   margin-top: 0.3rem;
 }
 
+/* Contenitore pulsanti */
+.order-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+}
 
+/* Pulsanti */
+.order-buttons .btn {
+  flex: 1;
+  max-width: 180px;
+  min-width: 150px;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.6rem;
+  text-align: center;
+  color: #fff;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-buttons .btn-primary {
+  background-color: #016FB9;
+}
+
+.order-buttons .btn-primary:hover {
+  background-color: #22AED1;
+}
+
+.order-buttons .btn-secondary {
+  background-color: #6D8EA0;
+}
+
+.order-buttons .btn-secondary:hover {
+  background-color: #4b8ea0;
+}
+
+/* Responsive per schermi piccoli */
+@media (max-width: 768px) {
+  .cards-wrapper {
+    flex-direction: column; /* stacking verticale su mobile */
+    max-width: 100%;
+  }
+
+  .tk-order-card {
+    width: 100%;
+  }
+}
