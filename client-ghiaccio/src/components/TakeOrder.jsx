@@ -3,6 +3,8 @@ import MyNavbar from "./MyNavbar";
 import { Button } from "react-bootstrap";
 
 import "../css/TakeOrder.css";
+import { Navigate, useNavigate } from "react-router-dom";
+
 
 function TakeOrder({ handleLogoutWrapper, username, isAuth, isAdmin }) {
   const [form, setForm] = useState({
@@ -14,6 +16,7 @@ function TakeOrder({ handleLogoutWrapper, username, isAuth, isAdmin }) {
   });
 
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -57,98 +60,104 @@ function TakeOrder({ handleLogoutWrapper, username, isAuth, isAdmin }) {
 
   return (
     <>
+    <div className="tk-page"> 
       <MyNavbar
         handleLogoutWrapper={handleLogoutWrapper}
         isAuth={isAuth}
         role={isAdmin ? "admin" : "customer"}
       />
 
-      <div className="tk-header">
-        <h1>{username || "Ospite"} effettua un ordine</h1>
-      </div>
+      
+        <div className="tk-header">
+          <h1>{username || "Ospite"} effettua un ordine</h1>
+        </div>
 
-      <div className="tk-order-content">
-        <form className="order-form" onSubmit={handleSubmit}>
-          <div className="cards-wrapper">
-            <div className="tk-order-card">
-              <h3 className="cards-header">Informazioni di recapito</h3>
+        <div className="tk-order-content">
+          <form className="order-form" onSubmit={handleSubmit}>
+            <div className="cards-wrapper">
+              <div className="tk-order-card">
+                <h3 className="cards-header">Informazioni di recapito</h3>
 
-              <div className="form-group">
-                <label>Nome:</label>
-                <input
-                  type="text"
-                  name="nome"
-                  value={form.nome}
-                  onChange={handleChange}
-                />
-                {errors.nome && <span className="error">{errors.nome}</span>}
+                <div className="form-group">
+                  <label>Nome:</label>
+                  <input
+                    type="text"
+                    name="nome"
+                    value={form.nome}
+                    onChange={handleChange}
+                  />
+                  {errors.nome && <span className="error">{errors.nome}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Cognome:</label>
+                  <input
+                    type="text"
+                    name="cognome"
+                    value={form.cognome}
+                    onChange={handleChange}
+                  />
+                  {errors.cognome && (
+                    <span className="error">{errors.cognome}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Numero di telefono:</label>
+                  <input
+                    type="text"
+                    name="telefono"
+                    value={form.telefono}
+                    onChange={handleChange}
+                  />
+                  {errors.telefono && (
+                    <span className="error">{errors.telefono}</span>
+                  )}
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Cognome:</label>
-                <input
-                  type="text"
-                  name="cognome"
-                  value={form.cognome}
-                  onChange={handleChange}
-                />
-                {errors.cognome && (
-                  <span className="error">{errors.cognome}</span>
-                )}
-              </div>
+              <div className="tk-order-card">
+                <h3 className="cards-header">Informazioni di consegna</h3>
 
-              <div className="form-group">
-                <label>Numero di telefono:</label>
-                <input
-                  type="text"
-                  name="telefono"
-                  value={form.telefono}
-                  onChange={handleChange}
-                />
-                {errors.telefono && (
-                  <span className="error">{errors.telefono}</span>
-                )}
+                <div className="form-group">
+                  <label>Quantità (kg):</label>
+                  <input
+                    type="number"
+                    name="quantita"
+                    value={form.quantita}
+                    onChange={handleChange}
+                  />
+                  {errors.quantita && (
+                    <span className="error">{errors.quantita}</span>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Indirizzo di consegna:</label>
+                  <input
+                    type="text"
+                    name="indirizzo"
+                    value={form.indirizzo}
+                    onChange={handleChange}
+                  />
+                  {errors.indirizzo && (
+                    <span className="error">{errors.indirizzo}</span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="tk-order-card">
-              <h3 className="cards-header">Informazioni di consegna</h3>
-
-              <div className="form-group">
-                <label>Quantità (kg):</label>
-                <input
-                  type="number"
-                  name="quantita"
-                  value={form.quantita}
-                  onChange={handleChange}
-                />
-                {errors.quantita && (
-                  <span className="error">{errors.quantita}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Indirizzo di consegna:</label>
-                <input
-                  type="text"
-                  name="indirizzo"
-                  value={form.indirizzo}
-                  onChange={handleChange}
-                />
-                {errors.indirizzo && (
-                  <span className="error">{errors.indirizzo}</span>
-                )}
-              </div>
+            {/* Pulsanti centrati in basso */}
+            <div className="order-buttons">
+              <Button type="submit" variant="primary">
+                Effettua ordine
+              </Button>
+              <Button variant="secondary" onClick={() => navigate("/")}>
+                Annulla ordine
+              </Button>
             </div>
-          </div>
-
-          {/* Pulsanti centrati in basso */}
-          <div className="order-buttons">
-            <Button type="submit" variant="primary">
-              Effettua ordine
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </>
   );
