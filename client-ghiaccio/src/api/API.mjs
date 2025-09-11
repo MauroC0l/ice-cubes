@@ -13,6 +13,8 @@ export const loginHandler = (email, password, rememberMe) =>
     try { data = await res.json(); } 
     catch { throw 'Invalid server response'; }
 
+    console.log("DATA: ", data.user);
+
     if (data.success) return data.user;
     else throw data.errorMsg || 'Login fallito';
   });

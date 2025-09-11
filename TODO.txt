@@ -1,4 +1,11 @@
 - Sistemare alert per invio degli ordini 
+- setConfirmOrder(true) quando si invia un ordine
+- sistemare modifica ordine da loggato
+
+
+- GESTIRE ORDINI e poi LOGOUT
+
+
 - Mostrare un riepilogo dell'ordine
 - Inserire la modifica degli ordini (entro tot ore dall'invio)
 - Inserire la DATAAAA negli ordini
@@ -7,3 +14,12 @@
 - Inserire la modifica del profilo
 
 - Far si che l'admin possa inserire degli ordini 
+
+
+
+
+
+
+FATTE:
+- Sistemate le proporzioni su schermi diversi
+

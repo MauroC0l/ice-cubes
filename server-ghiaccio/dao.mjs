@@ -21,6 +21,7 @@ export const getUserByEmail = (email) =>
     db.get('SELECT * FROM user WHERE email = ?', [email], (err, row) => {
       closeDb(db);
       if (err) return reject(err);
+      console.log("\n\n USER: ", row);
       resolve(row || null);
     });
   }));

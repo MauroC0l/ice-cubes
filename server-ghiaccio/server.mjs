@@ -44,7 +44,6 @@ passport.use(new LocalStrategy({
 
     const hashedPassword = await hashPassword(password, user.salt);
     if (hashedPassword !== user.password) return done(null, false, { message: 'Credenziali non valide' });
-
     return done(null, user);
   } catch (err) { return done(err); }
 }));
@@ -91,7 +90,7 @@ app.post('/api/login', [
       if (rememberMe) req.session.cookie.maxAge = 10 * 60 * 1000;
       else { delete req.session.cookie.expires; delete req.session.cookie.maxAge; }
 
-      return res.json({ success: true, user: { name: user.name, email: user.email, role: user.role } });
+      return res.json({ success: true, user: { name: user.name, surname: user.surname, phoneNumber:user.phoneNumber, email: user.email, role: user.role } });
     });
   })(req, res, next);
 });
@@ -111,8 +110,6 @@ app.post('/api/register', [
 
   try {
     const { name, surname, email, password, phoneNumber } = req.body;
-
-    console.log("\n\n credenziali ricevute: ", surname);
 
     // Controlli duplicati
     if (await dao.getUserByEmail(email)) return res.json({ success: false, errorMsg: 'Email già registrata' });

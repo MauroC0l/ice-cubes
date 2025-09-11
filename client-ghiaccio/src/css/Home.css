@@ -67,3 +67,26 @@
   font-size: 1rem;
   color: #182825;
 }
+
+.toast-message {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #d4edda; /* verde chiaro */
+  color: #155724; /* verde scuro testo */
+  padding: 1rem 2rem;
+  border-radius: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  z-index: 9999;
+  animation: fadeInOut 1.5s ease-in-out forwards;
+}
+
+/* Animazione fade in/out */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -20rem); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  90% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20rem); }
+}

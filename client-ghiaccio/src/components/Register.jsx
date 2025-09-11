@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Card, InputGroup } from 'react-bootstrap';
 
 import MyFont from './MyFont';
-import '../css/Login.css'; 
+import '../css/Register.css'; 
 import { registerHandler } from '../api/API.mjs';
 
 function isValidEmail(email) {
@@ -31,7 +31,6 @@ function Register({ makeAuth, setUser, logo }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Funzione di validazione
   const validate = () => {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = "Il nome è obbligatorio";
@@ -68,14 +67,14 @@ function Register({ makeAuth, setUser, logo }) {
   };
 
   return (
-    <div className="login-page">
-      <Container className="login-container">
-        <Card className="login-card">
+    <div className="register-page">
+      <Container className="register-container">
+        <Card className="register-card">
           <Card.Body>
             <div className="text-center mb-4">
-              <img src={logo} alt="Ice Cube Logo" className="login-logo" />
+              <img src={logo} alt="Ice Cube Logo" className="register-logo" />
               <MyFont>
-                <h1 className="login-title">Crea un nuovo account</h1>
+                <h1 className="register-title">Crea un nuovo account</h1>
               </MyFont>
             </div>
 
@@ -202,7 +201,7 @@ function Register({ makeAuth, setUser, logo }) {
                   onClick={() => navigate("/login")}
                   disabled={loading}
                 >
-                  Torna al login
+                  Torna al register
                 </Button>
               </div>
             </Form>

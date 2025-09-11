@@ -24,6 +24,8 @@ function App() {
   const [user, setUser] = useState(null); // store user data
   const [isAdmin, setIsAdmin] = useState(false); // store if user is admin
 
+  const [confirmedOrder, setConfirmedOrder] = useState(false);
+
   const makeAuth = (value) => setIsAuth(value); // function to set auth state
 
   // Wrapper per logout
@@ -61,6 +63,7 @@ function App() {
     </div>
   );
 
+
   return (
     <>
       {serverStatus ? (
@@ -74,6 +77,8 @@ function App() {
                 handleLogoutWrapper={handleLogoutWrapper}
                 name={user?.name}
                 isAuth={isAuth}
+                confirmedOrder={confirmedOrder}
+                setConfirmedOrder={setConfirmedOrder}
               />
             }
           />
@@ -114,12 +119,21 @@ function App() {
           />
 
           {/* Redirect from /make-order to /make-orders */}
-          <Route path='/make-order' element={ <TakeOrder 
-            isAdmin={isAdmin}
-            name={user?.name}
-            handleLogoutWrapper={handleLogoutWrapper}
-            isAuth={isAuth}
-          /> } />
+          <Route
+            path="/make-order" element={ <TakeOrder
+                isAdmin={isAdmin}
+                handleLogoutWrapper={handleLogoutWrapper}
+                isAuth={isAuth}
+                setConfirmedOrder={setConfirmedOrder}
+                user={{
+                  name: user?.name,
+                  surname: user?.surname,
+                  phone: user?.phoneNumber,
+                  email: user?.email
+                }}
+              />
+            }
+          />
 
           {/* Catch-all route for 404 Not Found */}
           <Route
