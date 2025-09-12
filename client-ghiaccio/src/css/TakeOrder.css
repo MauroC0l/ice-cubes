@@ -261,3 +261,52 @@ input[type=number] {
 .calendar-btn.is-invalid {
   border-color: #dc3545; /* rosso bootstrap */
 }
+
+/* Styling per il bordo rosso dei pulsanti tipologia */
+.tipologia-btn.selected {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: white;
+}
+
+.tipologia-btn:not(.selected) {
+  border-color: #ccc;
+}
+
+.tipologia-btn:focus {
+  outline: none;
+}
+
+.is-invalid {
+  border-color: red !important;
+}
+
+
+/* Styling per il bordo rosso dei pulsanti tipologia */
+.tipologia-btn.selected {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: white;
+}
+
+.tipologia-btn {
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.tipologia-btn:hover {
+  border-color: #007bff;
+}
+
+.tipologia-btn.is-invalid {
+  border-color: red !important; /* Bordo rosso per errore */
+  background-color: #f8d7da;
+  color: red;
+}
+
+.is-invalid {
+  border-color: red !important; /* Per i campi input con errore */
+}
