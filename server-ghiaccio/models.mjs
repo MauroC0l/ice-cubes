@@ -37,13 +37,16 @@ export class Freezer {
 }
 
 export class Order {
-    constructor({ id = null, quantity, request_date, delivery_date, ice_type, status = 'pending', user_id = null }) {
+    constructor({ id = null, quantity, request_date, request_hour, delivery_date, delivery_hour, delivery_address, ice_type, status = 'in attesa', user_id = null }) {
         this.id = id;
-        this.quantity = quantity;               // Quantity in kg
-        this.request_date = request_date;       // Request date
-        this.delivery_date = delivery_date;     // Delivery date
-        this.ice_type = ice_type;               // 'cocktail', 'cooling'
-        this.status = status;                   // 'pending', 'in_charge', 'completed', 'deleted'
-        this.user_id = user_id;                 // Foreign key to User
+        this.quantity = quantity;                // Quantity in kg
+        this.request_date = request_date;        // Request date
+        this.request_hour = request_hour;        // Request hour
+        this.delivery_date = delivery_date;      // Delivery date    
+        this.delivery_hour = delivery_hour;      // Delivery hour
+        this.delivery_address = delivery_address // Delivery address
+        this.ice_type = ice_type;                // 'consumazione', 'raffreddare'
+        this.status = status;                    // 'in attesa', 'in consegna', 'completato', 'cancellato'
+        this.user_id = user_id;                  // Foreign key to User
     }
 }

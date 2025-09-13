@@ -8,11 +8,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
-import { FaCalendarAlt, FaUser, FaPhone, FaBoxOpen, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaUser,
+  FaPhone,
+  FaBoxOpen,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 
 import MyNavbar from "./MyNavbar";
 import "../css/TakeOrder.css";
 import { submitOrder } from "../api/API.mjs";
+import { setHours, setMinutes } from "date-fns";
+import { it } from "date-fns/locale";   
 
 function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrder }) {
   const [form, setForm] = useState({
@@ -23,6 +31,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     tipologia: "",
     indirizzo: "",
     data: "",
+    orario: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -32,46 +41,73 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
   const navigate = useNavigate();
 
+  // Gestione input generici
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDateChange = (date) => {
-    setForm(prev => ({ ...prev, data: date ? date.toISOString().split("T")[0] : "" }));
-  };
+  // Gestione data
+  const handleDateChange = (date) =>
+    setForm((prev) => ({
+      ...prev,
+      data: date ? date.toISOString().split("T")[0] : "",
+    }));
 
+  // Gestione orario
+  const handleTimeChange = (date) =>
+    setForm((prev) => ({
+      ...prev,
+      orario: date ? date.toTimeString().slice(0, 5) : "",
+    }));
+
+  // Validazione manuale
   const validate = () => {
     const newErrors = {};
+
     if (!isAuth) {
       if (!form.nome.trim()) newErrors.nome = "Il nome è obbligatorio";
       if (!form.cognome.trim()) newErrors.cognome = "Il cognome è obbligatorio";
-      if (!form.telefono.trim()) newErrors.telefono = "Il numero di telefono è obbligatorio";
-      else if (!/^\d{10}$/.test(form.telefono)) newErrors.telefono = "Numero di telefono non valido";
-      else if (!/^3/.test(form.telefono)) newErrors.telefono = "Il numero deve iniziare con 3";
+      if (!form.telefono.trim()) {
+        newErrors.telefono = "Il numero di telefono è obbligatorio";
+      } else if (!/^\d{10}$/.test(form.telefono)) {
+        newErrors.telefono = "Numero di telefono non valido";
+      } else if (!/^3/.test(form.telefono)) {
+        newErrors.telefono = "Il numero deve iniziare con 3";
+      }
     }
-    if (!form.quantita.trim()) newErrors.quantita = "Inserisci una quantità";
-    else if (isNaN(form.quantita) || Number(form.quantita) <= 0) newErrors.quantita = "La quantità deve essere un numero positivo";
 
-    if (!form.tipologia.trim()) newErrors.tipologia = "Seleziona una tipologia";
+    if (!form.quantita.trim())
+      newErrors.quantita = "Inserisci una quantità";
+    else if (isNaN(form.quantita) || Number(form.quantita) <= 0)
+      newErrors.quantita = "La quantità deve essere un numero positivo";
 
-    if (!form.indirizzo.trim()) newErrors.indirizzo = "L’indirizzo è obbligatorio";
-    if (!form.data.trim()) newErrors.data = "La data è obbligatoria";
+    if (!form.tipologia.trim())
+      newErrors.tipologia = "Seleziona una tipologia";
+
+    if (!form.indirizzo.trim())
+      newErrors.indirizzo = "L’indirizzo è obbligatorio";
+
+    if (!form.data.trim())
+      newErrors.data = "La data è obbligatoria";
+
+    if (!form.orario.trim())
+      newErrors.orario = "L’orario è obbligatorio";
 
     return newErrors;
   };
 
+  // Tentativo invio form
   const handleTrySubmit = (e) => {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
-
-    if (!form.tipologia) setShowTipologiaError(true);
-    else setShowTipologiaError(false);
+    setShowTipologiaError(!form.tipologia);
 
     if (Object.keys(validationErrors).length === 0) setShowSummary(true);
   };
 
+  // Invio ordine
   const handleSubmitOrder = async () => {
     try {
       await submitOrder(form);
@@ -85,170 +121,185 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     }
   };
 
+  // Input custom DatePicker
   const CustomDateInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
     <button
       type="button"
-      className={`btn btn-outline-primary calendar-btn d-flex align-items-center ${hasError ? "is-invalid" : ""}`}
+      className={`calendar-btn btn btn-outline-primary d-flex align-items-center ${hasError ? "is-invalid" : ""}`}
       onClick={onClick}
       ref={ref}
     >
-      <FaCalendarAlt style={{ fontSize: "1.25rem", marginRight: "4px" }} />
+      <FaCalendarAlt className="me-1" />
       <span>{value || placeholder}</span>
     </button>
   ));
 
-  const renderInputWithTooltip = (name, type, placeholder) => {
-    const hasError = !!errors[name];
-    return hasError ? (
-      <Tippy content={errors[name]} placement="top" arrow={true} trigger="mouseenter focus">
-        <div>
-          <Form.Control
-            type={type}
-            name={name}
-            value={form[name]}
-            onChange={handleChange}
-            isInvalid={hasError}
-            placeholder={placeholder}
-          />
-        </div>
+  // Wrapper tooltip
+  const withTooltip = (condition, message, children) =>
+    condition ? (
+      <Tippy content={message} placement="top" arrow trigger="mouseenter focus">
+        <div>{children}</div>
       </Tippy>
     ) : (
+      children
+    );
+
+  // Input con tooltip
+  const renderInputWithTooltip = (name, type, placeholder) =>
+    withTooltip(
+      errors[name],
+      errors[name],
       <Form.Control
         type={type}
         name={name}
         value={form[name]}
         onChange={handleChange}
+        isInvalid={!!errors[name]}
         placeholder={placeholder}
       />
     );
-  };
 
-  const renderDatePickerWithTooltip = () => {
-    const hasError = !!errors.data;
+  // DatePicker
+  const renderDatePickerWithTooltip = () =>
+    withTooltip(
+      errors.data,
+      errors.data,
+      <DatePicker
+        selected={form.data ? new Date(form.data) : null}
+        onChange={handleDateChange}
+        dateFormat="dd/MM/yyyy"
+        placeholderText="Seleziona una data"
+        minDate={new Date()}
+        customInput={<CustomDateInput hasError={!!errors.data} />}
+      />
+    );
+
+  // TimePicker
+
+  const renderTimePickerWithTooltip = () => {
+  const allowedTimes = [];
+  for (let h = 8; h <= 23; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      allowedTimes.push(setHours(setMinutes(new Date(1970, 0, 1), m), h));
+    }
+  }
+
+  return withTooltip(
+    errors.orario,
+    errors.orario,
+    <DatePicker
+      selected={form.orario ? new Date(`1970-01-01T${form.orario}:00`) : null}
+      onChange={handleTimeChange}
+      showTimeSelect
+      showTimeSelectOnly
+      includeTimes={allowedTimes}
+      timeCaption="Orario"
+      dateFormat="HH:mm"       // 👈 forza 24h
+      locale={it}              // 👈 usa localizzazione italiana
+      placeholderText="Seleziona un orario"
+      className={`form-control ${errors.orario ? "is-invalid" : ""}`}
+      calendarClassName="react-datepicker datepicker-orario"
+    />
+  );
+};
+
+
+
+
+  // Bottoni tipologia
+  const renderTipologiaButtons = () => {
+    const options = [
+      { key: "consumazioni", label: "Per consumazioni" },
+      { key: "raffreddare", label: "Per raffreddare" },
+    ];
+
+    const hasError = !!errors.tipologia && showTipologiaError;
+
     return (
-      <Tippy
-        content={hasError ? errors.data : ""}
-        placement="top"
-        arrow={true}
-        trigger={hasError ? "mouseenter focus" : "manual"}
-      >
-        <div>
-          <DatePicker
-            selected={form.data ? new Date(form.data) : null}
-            onChange={handleDateChange}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Seleziona una data"
-            minDate={new Date()}
-            customInput={<CustomDateInput placeholder="Seleziona una data" hasError={hasError} />}
-          />
-        </div>
-      </Tippy>
+      <div className="d-flex gap-2 mb-2">
+        {options.map((opt) => {
+          const button = (
+            <div
+              key={opt.key}
+              className={`tipologia-btn ${form.tipologia === opt.key ? "selected" : ""} ${hasError ? "is-invalid" : ""}`}
+              onClick={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  tipologia: prev.tipologia === opt.key ? "" : opt.key,
+                }))
+              }
+            >
+              {opt.label}
+            </div>
+          );
+
+          return withTooltip(hasError, errors.tipologia, button);
+        })}
+      </div>
     );
   };
 
- const renderTipologiaButtons = () => {
-  const options = [
-    { key: "consumazioni", label: "Per consumazioni" },
-    { key: "raffreddare", label: "Per raffreddare" }
-  ];
-
-  // Verifica se c'è un errore nella tipologia
-  const hasError = !!errors.tipologia && showTipologiaError;
-
-  return (
-    <div className="d-flex gap-2 mb-2">
-      {options.map(opt => {
-        const button = (
-          <div
-            key={opt.key}
-            className={`tipologia-btn ${form.tipologia === opt.key ? "selected" : ""} ${
-              hasError ? "is-invalid" : ""
-            }`}
-            onClick={() => {
-              setForm(prev => ({
-                ...prev,
-                tipologia: prev.tipologia === opt.key ? "" : opt.key
-              }));
-              setShowTipologiaError(false);
-            }}
-            style={{
-              cursor: "pointer",
-              padding: "10px 20px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              backgroundColor: form.tipologia === opt.key ? "#007bff" : "transparent",
-              color: form.tipologia === opt.key ? "#fff" : "#007bff",
-              transition: "all 0.3s ease"
-            }}
-          >
-            {opt.label}
-          </div>
-        );
-
-        // Se c'è errore, avvolgiamo nel tooltip
-        return hasError ? (
-          <Tippy
-            key={opt.key}
-            content={errors.tipologia}
-            placement="top"
-            arrow={true}
-            trigger="mouseenter focus"
-          >
-            {button}
-          </Tippy>
-        ) : (
-          button
-        );
-      })}
-    </div>
-  );
-  };
-
-
+  // Campi form
   const renderFormFields = () => (
     <div className="cards-wrapper row">
       {!isAuth && (
         <div className="tk-order-card card-summary col">
           <h3 className="cards-header">Informazioni di recapito</h3>
-          <Form.Group className="form-group">
-            <Form.Label>Nome: <FaUser className="icon" /></Form.Label>
-            {renderInputWithTooltip("nome", "text", "Nome")}
-          </Form.Group>
-          <Form.Group className="form-group">
-            <Form.Label>Cognome: <FaUser className="icon" /></Form.Label>
-            {renderInputWithTooltip("cognome", "text", "Cognome")}
-          </Form.Group>
-          <Form.Group className="form-group">
-            <Form.Label>Telefono: <FaPhone className="icon" /></Form.Label>
-            {renderInputWithTooltip("telefono", "text", "Telefono")}
-          </Form.Group>
+          {["nome", "cognome", "telefono"].map((field, i) => (
+            <Form.Group className="form-group" key={i}>
+              <Form.Label>
+                {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
+                {field === "telefono" ? <FaPhone className="icon" /> : <FaUser className="icon" />}
+              </Form.Label>
+              {renderInputWithTooltip(field, "text", field)}
+            </Form.Group>
+          ))}
         </div>
       )}
+
       <div className="tk-order-card card-summary col">
         <h3 className="cards-header">Informazioni di consegna</h3>
+
         <Form.Group className="form-group">
-          <Form.Label>Quantità (kg): <FaBoxOpen className="icon" /></Form.Label>
-          {renderInputWithTooltip("quantita", "number", "Quantità")}
+          <Form.Label>
+            Quantità (kg): <FaBoxOpen className="icon" />
+          </Form.Label>
+          {renderInputWithTooltip("quantita", "number", "quantità")}
         </Form.Group>
 
         <Form.Group className="form-group">
-          <Form.Label>Tipologia: <FaBoxOpen className="icon" /></Form.Label>
+          <Form.Label>
+            Tipologia: <FaBoxOpen className="icon" />
+          </Form.Label>
           {renderTipologiaButtons()}
         </Form.Group>
 
         <Form.Group className="form-group">
-          <Form.Label>Indirizzo: <FaMapMarkerAlt className="icon" /></Form.Label>
-          {renderInputWithTooltip("indirizzo", "text", "Indirizzo")}
+          <Form.Label>
+            Indirizzo: <FaMapMarkerAlt className="icon" />
+          </Form.Label>
+          {renderInputWithTooltip("indirizzo", "text", "indirizzo")}
         </Form.Group>
 
         <Form.Group className="form-group">
-          <Form.Label>Data di consegna: <FaCalendarAlt className="icon" /></Form.Label>
-          {renderDatePickerWithTooltip()}
+          <div className="row g-2">
+            <div className="col">
+              <Form.Label>
+                Data di consegna: <FaCalendarAlt className="icon" />
+              </Form.Label>
+              {renderDatePickerWithTooltip()}
+            </div>
+            <div className="col">
+              <Form.Label>Orario di consegna:</Form.Label>
+              {renderTimePickerWithTooltip()}
+            </div>
+          </div>
         </Form.Group>
       </div>
     </div>
   );
 
+  // Riepilogo ordine
   const renderSummary = () => {
     const summaryData = [
       { icon: FaUser, label: "Nome", value: form.nome || user?.name },
@@ -258,12 +309,13 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       { icon: FaBoxOpen, label: "Tipologia", value: form.tipologia === "consumazioni" ? "Per consumazioni" : "Per raffreddare" },
       { icon: FaMapMarkerAlt, label: "Indirizzo", value: form.indirizzo },
       { icon: FaCalendarAlt, label: "Data", value: form.data },
+      { icon: FaCalendarAlt, label: "Orario", value: form.orario },
     ];
 
     return (
       <div className="tk-page">
         <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />
-        <div className="tk-header">
+        <div className="tk-summary-header">
           <h1>Riepilogo ordine</h1>
         </div>
         <div className="tk-order-summary card-summary">
@@ -301,7 +353,9 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
             </Form>
           </div>
         </div>
-      ) : renderSummary()}
+      ) : (
+        renderSummary()
+      )}
     </>
   );
 }

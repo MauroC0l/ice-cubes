@@ -22,9 +22,9 @@ const retrievedFreezerList = [
 
 // Ordini iniziali
 const createdOrderList = [
-    new Order({ id: 1, quantity: 10, request_date: "2023-10-01", delivery_date: "2023-10-02", ice_type: "cocktail", status: "pending" }),
-    new Order({ id: 2, quantity: 20, request_date: "2023-10-03", delivery_date: "2023-10-04", ice_type: "cooling", status: "pending" }),
-    new Order({ id: 3, quantity: 15, request_date: "2023-10-05", delivery_date: "2023-10-06", ice_type: "cocktail", status: "pending" })
+    new Order({ id: 1, quantity: 10, request_date: "2023-10-01", delivery_date: "2023-10-02", ice_type: "consumazione", status: "in attesa" }),
+    new Order({ id: 2, quantity: 20, request_date: "2023-10-03", delivery_date: "2023-10-04", ice_type: "raffreddare", status: "in attesa" }),
+    new Order({ id: 3, quantity: 15, request_date: "2023-10-05", delivery_date: "2023-10-06", ice_type: "raffreddare", status: "in attesa" })
 ];
 
 async function setupDatabase() {
@@ -59,7 +59,10 @@ async function setupDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         quantity INTEGER NOT NULL,
         request_date TEXT NOT NULL,
+        request_hour TEXT NOT NULL,
         delivery_date TEXT NOT NULL,
+        delivery_hour TEXT NOT NULL,
+        delivery_address TEXT NOT NULL,
         ice_type TEXT NOT NULL,
         status TEXT NOT NULL,
         user_id INTEGER NOT NULL,
@@ -100,15 +103,16 @@ async function insertData(db) {
 
     // Inserimento ordini
     const sqlInsertOrder = await db.prepare(
-        "INSERT INTO orders (quantity, request_date, delivery_date, ice_type, status, user_id) VALUES (?, ?, ?, ?, ?, ?)"
+        `INSERT INTO orders(quantity, request_date, request_hour, delivery_date, delivery_hour, delivery_address, ice_type, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     );
+
     for (let i = 0; i < createdOrderList.length; i++) {
         const order = createdOrderList[i];
         const assignedUser = createdUserList[i % createdUserList.length];
         order.user_id = assignedUser.id;
 
         try {
-            const result = await sqlInsertOrder.run(order.quantity, order.request_date, order.delivery_date, order.ice_type, order.status, order.user_id);
+            const result = await sqlInsertOrder.run( order.quantity, order.request_date, "10:00", order.delivery_date, "12:00", "Indirizzo di prova", order.ice_type, order.status, order.user_id );
             order.id = result.lastID;
         } catch (err) {
             console.error("❌ Error inserting order:", err.message);

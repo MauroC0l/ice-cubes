@@ -11,7 +11,7 @@ import { body, validationResult } from 'express-validator';
 const app = express();
 
 // ==================== MIDDLEWARE ====================
-app.use(morgan('dev')); 
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(session({
@@ -90,7 +90,7 @@ app.post('/api/login', [
       if (rememberMe) req.session.cookie.maxAge = 10 * 60 * 1000;
       else { delete req.session.cookie.expires; delete req.session.cookie.maxAge; }
 
-      return res.json({ success: true, user: { name: user.name, surname: user.surname, phoneNumber:user.phoneNumber, email: user.email, role: user.role } });
+      return res.json({ success: true, user: { name: user.name, surname: user.surname, phoneNumber: user.phoneNumber, email: user.email, role: user.role } });
     });
   })(req, res, next);
 });
@@ -120,14 +120,14 @@ app.post('/api/register', [
     const hashedPassword = await hashPassword(password, salt);
 
     // Corretto: inseriamo surname e phoneNumber
-    const newUserId = await dao.addUser({ 
-      name, 
-      surname, 
-      email, 
-      phoneNumber, 
-      password: hashedPassword, 
-      salt, 
-      role: 'customer' 
+    const newUserId = await dao.addUser({
+      name,
+      surname,
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      salt,
+      role: 'customer'
     });
 
     const newUser = await dao.getUserById(newUserId);
@@ -136,7 +136,7 @@ app.post('/api/register', [
       if (err) return res.json({ success: false, errorMsg: 'Errore login dopo registrazione' });
       return res.json({ success: true, user: { name: newUser.name, email: newUser.email, role: newUser.role } });
     });
-    
+
   } catch (err) {
     console.error("Registration error:", err);
     return res.json({ success: false, errorMsg: 'Errore interno durante la registrazione' });
@@ -146,23 +146,54 @@ app.post('/api/register', [
 // -------------------- SUBMIT ORDER --------------------
 app.post('/api/submit-order', async (req, res) => {
   try {
-    if(req.body.name){
-
-    }
+    // Log dei dati ricevuti
     console.log("Order data received:", req.body);
-    /*
-    const { quantity, request_date, delivery_date, ice_type } = req.body;
-    const order = { quantity, request_date, delivery_date, ice_type, status: 'pending', user_id: req.user.id };
-    await dao.submitOrder(order);
-    
-    */
-    return res.json({ success: true });
 
+    // Ottieni la data/ora attuale
+    const now = new Date();
+    const request_date = now.toLocaleDateString("it-IT"); // es: 12/09/2025
+    const request_hour = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); // es: 14:30
+
+    // Estrai i dati dal body
+    const { quantita, tipologia, indirizzo, data, orario, nome, cognome, telefono } = req.body;
+
+    // Recupera utente dal DB
+    let user = await dao.getUserByPhoneNumber(telefono); // 🔹 aggiunto await
+
+    // Determina user_id
+    let user_id;
+    if (user) {
+      user_id = user.id;
+    } else {
+      user_id = telefono; // fallback: numero di telefono come identificativo
+    }
+
+    // Crea l’oggetto ordine coerente con il tuo schema
+    const order = {
+      quantity: quantita,
+      ice_type: tipologia,
+      delivery_address: indirizzo,
+      delivery_date: data,
+      delivery_hour: orario,
+      request_date,
+      request_hour,
+      status: "in attesa",
+      user_id
+    };
+
+    console.log("NUOVO ORDINE:", order);
+
+    // Salva l’ordine nel DB
+    await dao.submitOrder(order);
+
+    return res.json({ success: true, order });
   } catch (err) {
-    console.error('Error submitting order:', err);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error("Error submitting order:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
+
 
 // -------------------- LOGOUT --------------------
 app.post('/api/logout', (req, res) => {

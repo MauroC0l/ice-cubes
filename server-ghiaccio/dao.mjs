@@ -121,10 +121,11 @@ export const getOrdersByUserId = (userId) =>
     });
   }));
 
+
 export const submitOrder = (order) =>
   openDb().then(db => new Promise((resolve, reject) => {
-    const sql = 'INSERT INTO orders(quantity, request_date, delivery_date, ice_type, status, user_id) VALUES(?, ?, ?, ?, ?, ?)';
-    db.run(sql, [order.quantity, order.request_date, order.delivery_date, order.ice_type, order.status, order.user_id], function (err) {
+    const sql = 'INSERT INTO orders(quantity, request_date, request_hour, delivery_date, delivery_hour, delivery_address, ice_type, status, user_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    db.run(sql, [order.quantity, order.request_date, order.request_hour, order.delivery_date, order.delivery_hour, order.delivery_address, order.ice_type, order.status, order.user_id], function (err) {
       closeDb(db);
       if (err) return reject(err);
       resolve(this.lastID);
