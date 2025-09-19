@@ -1,0 +1,201 @@
+/* ----- Layout principale ----- */
+.orderlist-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 5vh 5vw;
+  background: linear-gradient(135deg, #f9fafb, #eef6fb);
+  color: #182825;
+  margin-top: 6vh;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+/* ----- Header ----- */
+.orderlist-header {
+  text-align: center;
+  margin-bottom: 6vh;
+  animation: fadeInDown 0.6s ease;
+}
+
+.orderlist-header h1 {
+  font-size: clamp(2rem, 4vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #016FB9, #22AED1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ----- Nessun ordine ----- */
+.no-orders {
+  text-align: center;
+  font-size: clamp(1rem, 1.2vw, 1.4rem);
+  font-weight: 500;
+  color: #6D8EA0;
+  margin-top: 4vh;
+}
+
+/* ----- Cards wrapper ----- */
+.orderlist-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(340px, 45vw, 500px), 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 90vw;
+  margin: 0 auto;
+  animation: fadeIn 1s ease;
+}
+
+/* ----- Card singolo ordine ----- */
+.order-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1.5rem;
+  padding: clamp(1.2rem, 2vw, 2.2rem);
+  box-shadow: 0 0.8vw 2.4vw rgba(1, 111, 185, 0.12);
+  border: 1px solid rgba(1, 111, 185, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(34,174,209,0.08), transparent 70%);
+  transform: rotate(25deg);
+}
+
+.order-card:hover {
+  transform: translateY(-0.6vh) scale(1.02);
+  box-shadow: 0 1.4vw 3.4vw rgba(1, 111, 185, 0.25);
+}
+
+/* ----- Card Header ----- */
+.order-card h3 {
+  font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+  font-weight: 700;
+  color: #016FB9;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ----- Info riga ----- */
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  padding: 0.6vh 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.order-info:last-child {
+  border-bottom: none;
+}
+
+.order-info strong {
+  color: #0d3b66;
+  font-weight: 600;
+}
+
+.order-info span {
+  color: #016FB9;
+  font-weight: 500;
+}
+
+/* ----- Stato ordine modern pill ----- */
+.order-status {
+  margin-top: 1.2vh;
+  padding: 0.6vh 1.5vw;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 0.95vw, 1rem);
+  display: inline-block;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s ease;
+  align-self: flex-start;
+}
+
+/* Hover solo per stati diversi da attesa */
+.order-status:not(.attesa):hover {
+  transform: scale(1.08);
+}
+
+.order-status.attesa {
+  background: linear-gradient(135deg, #fff3cd, #ffe8a1);
+  color: #7c5c00;
+}
+
+.order-status.consegna {
+  background: linear-gradient(135deg, #cce5ff, #99ccff);
+  color: #004085;
+}
+
+.order-status.completato {
+  background: linear-gradient(135deg, #d4edda, #a8e6a3);
+  color: #155724;
+}
+
+.order-status.cancellato {
+  background: linear-gradient(135deg, #f8d7da, #f5a6ac);
+  color: #721c24;
+}
+
+/* ----- Animazioni ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----- Azioni ordine ----- */
+.order-actions {
+  margin-top: 1.5vh;
+  display: flex;
+  gap: 1vw;
+}
+
+.order-btn {
+  flex: 1;
+  padding: clamp(0.4rem, 0.8vh, 0.6rem) clamp(0.8rem, 1vw, 1.2rem);
+  border-radius: 1rem;
+  border: none;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 0.95vw, 1rem);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.order-btn.edit {
+  background: linear-gradient(135deg, #cce5ff, #99ccff);
+  color: #004085;
+}
+
+.order-btn.edit:hover {
+  background: linear-gradient(135deg, #b3daff, #80c1ff);
+  transform: translateY(-0.2vh);
+}
+
+.order-btn.delete {
+  background: linear-gradient(135deg, #f8d7da, #f5a6ac);
+  color: #721c24;
+}
+
+.order-btn.delete:hover {
+  background: linear-gradient(135deg, #f3bfc3, #f28a91);
+  transform: translateY(-0.2vh);
+}

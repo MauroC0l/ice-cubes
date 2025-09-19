@@ -70,7 +70,8 @@ function isAdmin(req, res, next) {
 // ==================== API ROUTES ====================
 app.listen(3001, () => console.log('Server in ascolto su http://localhost:3001'));
 
-// -------------------- LOGIN --------------------
+// ==================== USER ACTION ====================
+// -- LOGIN --
 app.post('/api/login', [
   body('email').trim().isEmail().withMessage('Devi inserire una email valida'),
   body('password').trim().isLength({ min: 1 }).withMessage('Devi inserire una password')
@@ -95,7 +96,7 @@ app.post('/api/login', [
   })(req, res, next);
 });
 
-// -------------------- REGISTER --------------------
+// -- REGISTER --
 app.post('/api/register', [
   body('name').trim().isLength({ min: 1 }).withMessage('Il nome è obbligatorio'),
   body('surname').trim().isLength({ min: 1 }).withMessage('Il cognome è obbligatorio'),
@@ -143,7 +144,20 @@ app.post('/api/register', [
   }
 });
 
-// -------------------- SUBMIT ORDER --------------------
+// -- LOGOUT --
+app.post('/api/logout', (req, res) => {
+  req.logout(err => {
+    if (err) return res.json({ success: false, message: 'Logout fallito' });
+    req.session.destroy(errDestroy => {
+      if (errDestroy) console.error('Error destroying session:', errDestroy);
+      res.clearCookie('connect.sid');
+      return res.json({ success: true });
+    });
+  });
+});
+
+// -------------------- ORDERS --------------------
+// Submit order
 app.post('/api/submit-order', async (req, res) => {
   try {
     // Log dei dati ricevuti
@@ -193,19 +207,19 @@ app.post('/api/submit-order', async (req, res) => {
   }
 });
 
-
-
-// -------------------- LOGOUT --------------------
-app.post('/api/logout', (req, res) => {
-  req.logout(err => {
-    if (err) return res.json({ success: false, message: 'Logout fallito' });
-    req.session.destroy(errDestroy => {
-      if (errDestroy) console.error('Error destroying session:', errDestroy);
-      res.clearCookie('connect.sid');
-      return res.json({ success: true });
-    });
-  });
+// Get all orders for a specific user
+app.get('/api/orders', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const orders = await dao.getOrdersByUserId(userId);
+    return res.json({ success: true, orders });
+  }
+  catch (err) {
+    console.error("Error fetching user orders:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
 });
+
 
 // -------------------- GET CURRENT USER --------------------
 app.get('/api/user', (req, res) => {
@@ -213,7 +227,8 @@ app.get('/api/user', (req, res) => {
   return res.json({ isAuth: false });
 });
 
-// ==================== ORDINI E FREEZERS (solo admin) ====================
+// ==================== solo admin ====================
+// Get all orders
 app.get('/api/orders/all', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const orders = await dao.getAllOrders();
@@ -221,6 +236,7 @@ app.get('/api/orders/all', isAuthenticated, isAdmin, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'Internal server error' }); }
 });
 
+// Get all freezers
 app.get('/api/freezers', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const freezers = await dao.getAllFreezers();

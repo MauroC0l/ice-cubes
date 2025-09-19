@@ -8,14 +8,14 @@ export const loginHandler = (email, password, rememberMe) =>
     credentials: 'include',
     body: JSON.stringify({ email, password, rememberMe })
   })
-  .then(async res => {
-    let data;
-    try { data = await res.json(); } 
-    catch { throw 'Invalid server response'; }
+    .then(async res => {
+      let data;
+      try { data = await res.json(); }
+      catch { throw 'Invalid server response'; }
 
-    if (data.success) return data.user;
-    else throw data.errorMsg || 'Login fallito';
-  });
+      if (data.success) return data.user;
+      else throw data.errorMsg || 'Login fallito';
+    });
 
 // Register handler
 export const registerHandler = (name, surname, phoneNumber, email, password, confirmPassword) =>
@@ -25,12 +25,24 @@ export const registerHandler = (name, surname, phoneNumber, email, password, con
     credentials: 'include',
     body: JSON.stringify({ name, surname, phoneNumber, email, password, confirmPassword })
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) return data.user;
-    else throw data.errorMsg || "Registrazione fallita";
-  });
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) return data.user;
+      else throw data.errorMsg || "Registrazione fallita";
+    });
 
+// Check authentication
+export const checkAuth = () =>
+  fetch(`${API_BASE}/user`, { method: 'GET', credentials: 'include' })
+    .then(res => res.ok ? res.json() : { isAuth: false, user: {} })
+    .then(data => ({ isAuth: !!data.isAuth, user: data.user || {} }));
+  
+// Logout
+export const handleLogout = () =>
+  fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' })
+    .then(() => { return; });
+
+// ========== ORDERS ==========
 // Submit order
 export const submitOrder = (orderData) =>
   fetch(`${API_BASE}/submit-order`, {
@@ -40,17 +52,23 @@ export const submitOrder = (orderData) =>
     body: JSON.stringify(orderData)
   }).then(() => { return; });
 
-// Logout
-export const handleLogout = () =>
-  fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' })
-    .then(() => { return; });
+// Retrieve user orders
+export const fetchUserOrders = () =>
+  fetch(`${API_BASE}/orders`, { 
+    method: 'GET', 
+    credentials: 'include' 
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) return data.orders;
+      else throw data.message || "Failed to fetch user orders";
+    });
 
-// Check authentication
-export const checkAuth = () =>
-  fetch(`${API_BASE}/user`, { method: 'GET', credentials: 'include' })
-    .then(res => res.ok ? res.json() : { isAuth: false, user: {} })
-    .then(data => ({ isAuth: !!data.isAuth, user: data.user || {} }));
-  
+
+
+
+// ========== ADMIN ==========
+
 // Fetch all orders (solo admin)
 export const fetchOrders = () =>
   fetch(`${API_BASE}/orders/all`, { method: 'GET', credentials: 'include' })

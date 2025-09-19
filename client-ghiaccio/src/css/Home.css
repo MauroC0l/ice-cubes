@@ -1,74 +1,126 @@
-/* Layout principale */
+/* ----- Layout principale ----- */
 .home-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 2rem;
-  background: #f9fafb;
+  padding: 5vh 5vw;
+  background: linear-gradient(135deg, #f9fafb, #eef6fb);
   color: #182825;
-  margin-top: 80px;
+  margin-top: 6vh;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
 }
 
-/* Header */
+/* ----- Header ----- */
 .home-header {
   text-align: center;
-  margin-bottom: 2rem;
-  margin-top: 5%;
+  margin-bottom: 6vh;
+  animation: fadeInDown 0.6s ease;
 }
 
 .home-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #016FB9;
+  font-size: clamp(2rem, 4vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #016FB9, #22AED1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
 }
 
 .home-header p {
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 1.2vw, 1.4rem);
+  font-weight: 500;
   color: #6D8EA0;
 }
 
-/* Cards */
+/* ----- Cards container centrato ----- */
 .home-content {
   display: flex;
-  flex: 1;
-  gap: 1.5rem;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  animation: fadeIn 1s ease;
 }
 
+/* ----- Cards ----- */
 .home-card {
-  width: 320px;
-  min-height: 220px;
-  background: #ffffff;
-  border-radius: 0.8rem;
-  padding: 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex: 0 1 320px;
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(1, 111, 185, 0.12);
+  border: 1px solid rgba(1, 111, 185, 0.1);
   text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.home-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(34,174,209,0.06), transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none;
 }
 
 .home-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-0.6vh) scale(1.03);
+  box-shadow: 0 12px 32px rgba(1, 111, 185, 0.25);
   border-color: #22AED1;
 }
 
 .home-card h3 {
   color: #016FB9;
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
 }
 
 .home-card p {
   margin: 0.4rem 0;
   font-size: 1rem;
   color: #182825;
+  font-weight: 500;
 }
 
-/* Toast messaggio */
+/* ----- Pulsanti dentro le card ----- */
+.home-card .btn {
+  display: inline-block;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #016FB9, #22AED1);
+  border: none;
+  padding: 0.8rem 1.6rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.8rem;
+  transition: all 0.25s ease;
+  width: 100%;
+  max-width: 220px;
+}
+
+.home-card .btn:hover {
+  background: linear-gradient(135deg, #22AED1, #016FB9);
+  transform: translateY(-0.2vh);
+  box-shadow: 0 6px 14px rgba(1, 111, 185, 0.2);
+}
+
+/* ----- Pulsanti React-Bootstrap / Azioni generali ----- */
+button.btn, .btn {
+  cursor: pointer;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  border-radius: 0.8rem;
+}
+
+/* ----- Toast messaggio ----- */
 .toast-message {
   position: fixed;
   top: 2rem;
@@ -77,11 +129,79 @@
   background-color: #d4edda;
   color: #155724;
   padding: 1rem 2rem;
-  border-radius: 0.6rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 1rem;
+  box-shadow: 0 0.8vw 2.4vw rgba(1,111,185,0.12);
   font-weight: 600;
   z-index: 9999;
   animation: fadeInOut 1.5s ease-in-out forwards;
+}
+
+/* ----- Modal popup moderno ----- */
+.modal-content {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(1,111,185,0.08);
+  box-shadow: 0 0.8vw 2.4vw rgba(1,111,185,0.12);
+  padding: 1.2rem 1.8rem;
+  text-align: center;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  transform: scale(0.9);
+  opacity: 0;
+  animation: modalShow 0.25s forwards;
+}
+
+.modal-header { border-bottom: none; justify-content: center; padding-bottom: 0.5rem; }
+.modal-title { font-size: 1.5rem; font-weight: 700; color: #016FB9; }
+.modal-body { font-size: 1.05rem; color: #182825; margin-bottom: 1.2rem; }
+.modal-footer { border-top: none; justify-content: center; gap: 1rem; }
+
+.modal-backdrop.show { background-color: rgba(0,0,0,0.35); backdrop-filter: blur(3px); }
+
+/* ----- Pulsanti principali modale ----- */
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #016FB9, #22AED1);
+  border: none;
+  padding: 0.75rem 2rem;   /* ✅ più spazio attorno al testo */
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;   /* ✅ rende il testo più leggibile */
+  border-radius: 0.9rem;
+  margin: 0 0.5rem;        /* ✅ spazio tra pulsanti */
+}
+
+.modal-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #22AED1, #016FB9);
+  transform: translateY(-0.2vh);
+  box-shadow: 0 6px 14px rgba(1, 111, 185, 0.2);
+}
+
+/* ----- Pulsanti secondari modale ----- */
+.modal-footer .btn-secondary {
+  background: rgba(0,0,0,0.08);
+  color: #182825;
+  border: none;
+  padding: 0.75rem 2rem;   /* ✅ coerente col primary */
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.9rem;
+  margin: 0 0.5rem;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: rgba(0,0,0,0.15);
+}
+
+/* ----- Animazioni ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInOut {
@@ -91,44 +211,6 @@
   100% { opacity: 0; transform: translate(-50%, -20rem); }
 }
 
-/* Modal popup moderno */
-.modal-content {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(6px);
-  border-radius: 1.2rem;
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
-  padding: 1.2rem 1.8rem;
-  text-align: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transform: scale(0.9);
-  opacity: 0;
-  animation: modalShow 0.25s forwards;
-}
-
 @keyframes modalShow {
   to { transform: scale(1); opacity: 1; }
 }
-
-.modal-header { border-bottom: none; justify-content: center; padding-bottom: 0.5rem; }
-.modal-title { font-size: 1.5rem; font-weight: 700; color: #016FB9; }
-.modal-body { font-size: 1.05rem; color: #182825; margin-bottom: 1.2rem; }
-.modal-footer { border-top: none; justify-content: center; gap: 1rem; }
-
-.modal-footer .btn-primary {
-  background: linear-gradient(135deg, #016FB9, #0288d1);
-  border: none; border-radius: 0.7rem;
-  padding: 0.55rem 1.4rem; font-weight: 600; color: #fff;
-  transition: all 0.25s ease;
-}
-.modal-footer .btn-primary:hover { background: linear-gradient(135deg, #0288d1, #016FB9); transform: translateY(-2px); }
-
-.modal-footer .btn-secondary {
-  background: rgba(0,0,0,0.08); color: #182825;
-  border: none; border-radius: 0.7rem;
-  padding: 0.55rem 1.4rem; font-weight: 600;
-  transition: all 0.25s ease;
-}
-.modal-footer .btn-secondary:hover { background: rgba(0,0,0,0.15); }
-
-.modal-backdrop.show { background-color: rgba(0,0,0,0.35); backdrop-filter: blur(3px); }

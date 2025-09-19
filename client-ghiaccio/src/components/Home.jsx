@@ -67,7 +67,7 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
 
   return (
     <div className="home-page">
-      <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />
+      <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} />
 
       <div className="home-header">
         <h1>Benvenuto {name || "su Ice Cubes"}</h1>

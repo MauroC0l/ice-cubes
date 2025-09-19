@@ -134,7 +134,7 @@ function App() {
         path="/my-orders"
         element={
           <OrderList
-            isLogged={isAuth}
+            isAuth={isAuth}
             isAdmin={isAdmin}
             handleLogoutWrapper={handleLogoutWrapper}
           />

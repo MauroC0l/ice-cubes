@@ -14,13 +14,14 @@ import {
   FaPhone,
   FaBoxOpen,
   FaMapMarkerAlt,
+  FaClock,
 } from "react-icons/fa";
 
 import MyNavbar from "./MyNavbar";
 import "../css/TakeOrder.css";
 import { submitOrder } from "../api/API.mjs";
 import { setHours, setMinutes } from "date-fns";
-import { it } from "date-fns/locale";   
+import { it } from "date-fns/locale";
 
 function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrder }) {
   const [form, setForm] = useState({
@@ -35,32 +36,33 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   });
 
   const [errors, setErrors] = useState({});
-  const [showSummary, setShowSummary] = useState(false);
   const [showTipologiaError, setShowTipologiaError] = useState(false);
 
   const navigate = useNavigate();
 
-  // Gestione input generici
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Gestione data
   const handleDateChange = (date) =>
     setForm((prev) => ({
       ...prev,
-      data: date ? date.toISOString().split("T")[0] : "",
+      data: date
+        ? String(date.getDate()).padStart(2, "0") +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        date.getFullYear()
+        : "",
     }));
 
-  // Gestione orario
   const handleTimeChange = (date) =>
     setForm((prev) => ({
       ...prev,
       orario: date ? date.toTimeString().slice(0, 5) : "",
     }));
 
-  // Validazione manuale
   const validate = () => {
     const newErrors = {};
 
@@ -96,18 +98,13 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     return newErrors;
   };
 
-  // Tentativo invio form
-  const handleTrySubmit = (e) => {
-    e.preventDefault();
+  const handleSubmitOrder = async () => {
     const validationErrors = validate();
     setErrors(validationErrors);
     setShowTipologiaError(!form.tipologia);
 
-    if (Object.keys(validationErrors).length === 0) setShowSummary(true);
-  };
+    if (Object.keys(validationErrors).length > 0) return;
 
-  // Invio ordine
-  const handleSubmitOrder = async () => {
     try {
       await submitOrder(form);
       setConfirmedOrder(true);
@@ -117,7 +114,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     }
   };
 
-  // Input custom DatePicker
+  // Pulsante personalizzato per la data
   const CustomDateInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
     <button
       type="button"
@@ -130,7 +127,19 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     </button>
   ));
 
-  // Wrapper tooltip con key
+  // Pulsante personalizzato per l'orario
+  const CustomTimeInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
+    <button
+      type="button"
+      className={`calendar-btn btn btn-outline-primary d-flex align-items-center ${hasError ? "is-invalid" : ""}`}
+      onClick={onClick}
+      ref={ref}
+    >
+      <FaClock className="me-1" />
+      <span>{value || placeholder}</span>
+    </button>
+  ));
+
   const withTooltip = (condition, message, children, key) =>
     condition ? (
       <Tippy key={key} content={message} placement="top" arrow trigger="mouseenter focus">
@@ -140,7 +149,6 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       <div key={key}>{children}</div>
     );
 
-  // Input con tooltip
   const renderInputWithTooltip = (name, type, placeholder, key) =>
     withTooltip(
       errors[name],
@@ -156,23 +164,23 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       key
     );
 
-  // DatePicker
   const renderDatePickerWithTooltip = () =>
     withTooltip(
       errors.data,
       errors.data,
       <DatePicker
-        selected={form.data ? new Date(form.data) : null}
+        selected={form.data ? new Date(form.data.split("-").reverse().join("-")) : null}
         onChange={handleDateChange}
         dateFormat="dd/MM/yyyy"
         placeholderText="Seleziona una data"
         minDate={new Date()}
         customInput={<CustomDateInput hasError={!!errors.data} />}
+        portalTarget={document.body}
+        popperPlacement="top"
       />,
       "date-picker"
     );
 
-  // TimePicker
   const renderTimePickerWithTooltip = () => {
     const allowedTimes = [];
     for (let h = 8; h <= 23; h++) {
@@ -194,14 +202,15 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         dateFormat="HH:mm"
         locale={it}
         placeholderText="Seleziona un orario"
-        className={`form-control ${errors.orario ? "is-invalid" : ""}`}
         calendarClassName="react-datepicker datepicker-orario"
+        customInput={<CustomTimeInput hasError={!!errors.orario} />}
+        portalTarget={document.body}
+        popperPlacement="top"
       />,
       "time-picker"
     );
   };
 
-  // Bottoni tipologia
   const renderTipologiaButtons = () => {
     const options = [
       { key: "consumazioni", label: "Per consumazioni" },
@@ -226,131 +235,74 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
               {opt.label}
             </div>
           );
-
           return withTooltip(hasError, errors.tipologia, button, opt.key);
         })}
       </div>
     );
   };
 
-  // Campi form
-  const renderFormFields = () => (
-    <div className="cards-wrapper row">
-      {!isAuth && (
-        <div className="tk-order-card card-summary col">
-          <h3 className="cards-header">Informazioni di recapito</h3>
-          {["nome", "cognome", "telefono"].map((field) => (
-            <Form.Group className="form-group" key={field}>
-              <Form.Label>
-                {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
+  return (
+    <div className="tk-page">
+      <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />
+      <div className="tk-header">
+        <h1>{user?.name ? `Ciao ${user.name}, effettua un ordine` : "Ospite, effettua un ordine"}</h1>
+      </div>
+
+      <Form
+        className="tk-order-summary card-summary"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmitOrder();
+        }}
+      >
+        {!isAuth && (
+          <>
+            {["nome", "cognome", "telefono"].map((field) => (
+              <Form.Group className="summary-row" key={field}>
                 {field === "telefono" ? <FaPhone className="icon" /> : <FaUser className="icon" />}
-              </Form.Label>
-              {renderInputWithTooltip(field, "text", field, field)}
-            </Form.Group>
-          ))}
-        </div>
-      )}
+                <span>{field.charAt(0).toUpperCase() + field.slice(1)}:</span>
+                {renderInputWithTooltip(field, "text", field, field)}
+              </Form.Group>
+            ))}
+          </>
+        )}
 
-      <div className="tk-order-card card-summary col">
-        <h3 className="cards-header">Informazioni di consegna</h3>
-
-        <Form.Group className="form-group">
-          <Form.Label>
-            Quantità (kg): <FaBoxOpen className="icon" />
-          </Form.Label>
+        <Form.Group className="summary-row">
+          <FaBoxOpen className="icon" />
+          <span>Quantità (kg):</span>
           {renderInputWithTooltip("quantita", "number", "quantità", "quantita")}
         </Form.Group>
 
-        <Form.Group className="form-group">
-          <Form.Label>
-            Tipologia: <FaBoxOpen className="icon" />
-          </Form.Label>
+        <Form.Group className="summary-row">
+          <FaBoxOpen className="icon" />
+          <span>Tipologia:</span>
           {renderTipologiaButtons()}
         </Form.Group>
 
-        <Form.Group className="form-group">
-          <Form.Label>
-            Indirizzo: <FaMapMarkerAlt className="icon" />
-          </Form.Label>
+        <Form.Group className="summary-row">
+          <FaMapMarkerAlt className="icon" />
+          <span>Indirizzo:</span>
           {renderInputWithTooltip("indirizzo", "text", "indirizzo", "indirizzo")}
         </Form.Group>
 
-        <Form.Group className="form-group">
-          <div className="row g-2">
-            <div className="col">
-              <Form.Label>
-                Data di consegna: <FaCalendarAlt className="icon" />
-              </Form.Label>
-              {renderDatePickerWithTooltip()}
-            </div>
-            <div className="col">
-              <Form.Label>Orario di consegna:</Form.Label>
-              {renderTimePickerWithTooltip()}
-            </div>
-          </div>
+        <Form.Group className="summary-row">
+          <FaCalendarAlt className="icon" />
+          <span>Data di consegna:</span>
+          {renderDatePickerWithTooltip()}
         </Form.Group>
-      </div>
+
+        <Form.Group className="summary-row">
+          <FaClock className="icon" />
+          <span>Orario di consegna:</span>
+          {renderTimePickerWithTooltip()}
+        </Form.Group>
+
+        <div className="order-buttons">
+          <Button type="submit" variant="primary">Conferma</Button>
+          <Button variant="secondary" onClick={() => navigate("/")}>Annulla</Button>
+        </div>
+      </Form>
     </div>
-  );
-
-  // Riepilogo ordine
-  const renderSummary = () => {
-    const summaryData = [
-      { icon: FaUser, label: "Nome", value: form.nome || user?.name },
-      { icon: FaUser, label: "Cognome", value: form.cognome || user?.surname },
-      { icon: FaPhone, label: "Telefono", value: form.telefono || user?.phoneNumber },
-      { icon: FaBoxOpen, label: "Quantità", value: form.quantita + " kg" },
-      { icon: FaBoxOpen, label: "Tipologia", value: form.tipologia === "consumazioni" ? "Per consumazioni" : "Per raffreddare" },
-      { icon: FaMapMarkerAlt, label: "Indirizzo", value: form.indirizzo },
-      { icon: FaCalendarAlt, label: "Data", value: form.data },
-      { icon: FaCalendarAlt, label: "Orario", value: form.orario },
-    ];
-
-    return (
-      <div className="tk-page">
-        <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />
-        <div className="tk-summary-header">
-          <h1>Riepilogo ordine</h1>
-        </div>
-        <div className="tk-order-summary card-summary">
-          {summaryData.map((item, idx) => (
-            <div className="summary-row" key={idx}>
-              <item.icon className="icon" /> <span>{item.label}:</span> <strong>{item.value}</strong>
-            </div>
-          ))}
-          <div className="order-buttons">
-            <Button variant="primary" onClick={handleSubmitOrder}>Conferma</Button>
-            <Button variant="secondary" onClick={() => setShowSummary(false)}>Modifica</Button>
-            <Button variant="danger" onClick={() => navigate("/")}>Annulla</Button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-
-  return (
-    <>
-      {!showSummary ? (
-        <div className="tk-page">
-          <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />
-          <div className="tk-header">
-            <h1>{user?.name ? `Ciao ${user.name}, effettua un ordine` : "Ospite, effettua un ordine"}</h1>
-          </div>
-          <div className="tk-order-content">
-            <Form className="order-form" onSubmit={handleTrySubmit}>
-              {renderFormFields()}
-              <div className="order-buttons">
-                <Button type="submit" variant="primary">Effettua ordine</Button>
-                <Button variant="secondary" onClick={() => navigate("/")}>Annulla ordine</Button>
-              </div>
-            </Form>
-          </div>
-        </div>
-      ) : (
-        renderSummary()
-      )}
-    </>
   );
 }
 
