@@ -4,7 +4,7 @@
   flex-direction: column;
   min-height: 100vh;
   padding: 2rem;
-  background: #f9fafb; /* sfondo chiaro neutro */
+  background: #f9fafb;
   color: #182825;
   margin-top: 80px;
 }
@@ -19,12 +19,12 @@
 .home-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #016FB9; /* blu principale */
+  color: #016FB9;
 }
 
 .home-header p {
   font-size: 1.1rem;
-  color: #6D8EA0; /* grigio neutro */
+  color: #6D8EA0;
 }
 
 /* Cards */
@@ -53,7 +53,7 @@
 .home-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  border-color: #22AED1; /* highlight */
+  border-color: #22AED1;
 }
 
 .home-card h3 {
@@ -68,13 +68,14 @@
   color: #182825;
 }
 
+/* Toast messaggio */
 .toast-message {
   position: fixed;
   top: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #d4edda; /* verde chiaro */
-  color: #155724; /* verde scuro testo */
+  background-color: #d4edda;
+  color: #155724;
   padding: 1rem 2rem;
   border-radius: 0.6rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -83,10 +84,51 @@
   animation: fadeInOut 1.5s ease-in-out forwards;
 }
 
-/* Animazione fade in/out */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translate(-50%, -20rem); }
   10% { opacity: 1; transform: translate(-50%, 0); }
   90% { opacity: 1; transform: translate(-50%, 0); }
   100% { opacity: 0; transform: translate(-50%, -20rem); }
 }
+
+/* Modal popup moderno */
+.modal-content {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 1.2rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+  padding: 1.2rem 1.8rem;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transform: scale(0.9);
+  opacity: 0;
+  animation: modalShow 0.25s forwards;
+}
+
+@keyframes modalShow {
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header { border-bottom: none; justify-content: center; padding-bottom: 0.5rem; }
+.modal-title { font-size: 1.5rem; font-weight: 700; color: #016FB9; }
+.modal-body { font-size: 1.05rem; color: #182825; margin-bottom: 1.2rem; }
+.modal-footer { border-top: none; justify-content: center; gap: 1rem; }
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #016FB9, #0288d1);
+  border: none; border-radius: 0.7rem;
+  padding: 0.55rem 1.4rem; font-weight: 600; color: #fff;
+  transition: all 0.25s ease;
+}
+.modal-footer .btn-primary:hover { background: linear-gradient(135deg, #0288d1, #016FB9); transform: translateY(-2px); }
+
+.modal-footer .btn-secondary {
+  background: rgba(0,0,0,0.08); color: #182825;
+  border: none; border-radius: 0.7rem;
+  padding: 0.55rem 1.4rem; font-weight: 600;
+  transition: all 0.25s ease;
+}
+.modal-footer .btn-secondary:hover { background: rgba(0,0,0,0.15); }
+
+.modal-backdrop.show { background-color: rgba(0,0,0,0.35); backdrop-filter: blur(3px); }

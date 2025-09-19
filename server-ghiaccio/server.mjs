@@ -209,7 +209,7 @@ app.post('/api/logout', (req, res) => {
 
 // -------------------- GET CURRENT USER --------------------
 app.get('/api/user', (req, res) => {
-  if (req.isAuthenticated()) return res.json({ isAuth: true, user: { name: req.user.name, email: req.user.email, role: req.user.role } });
+  if (req.isAuthenticated()) return res.json({ isAuth: true, user: { name: req.user.name, surname: req.user.surname, email: req.user.email, phoneNumber: req.user.phoneNumber, role: req.user.role } });
   return res.json({ isAuth: false });
 });
 

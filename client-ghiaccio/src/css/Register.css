@@ -4,99 +4,75 @@
   justify-content: center;
   min-height: 100vh;
   background-color: #f4f6f8;
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 .register-container {
   width: 100%;
-  max-width: 25%; 
-  min-width: 23%;
+  max-width: clamp(25rem, 28%, 30rem);
+  min-width: clamp(18rem, 23%, 24rem);
 }
 
 .register-card {
-  padding: 0.8rem 0.8rem; 
-  border-radius: 0.8rem;
+  padding: 1.2rem;
+  border-radius: 1rem;
   background-color: #ffffff;
-  box-shadow: 0 0.25rem 0.8rem rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
   text-align: center;
 }
 
 .register-logo {
   display: block;
-  width: 16%;
-  max-width: 45%; 
+  width: clamp(4rem, 20%, 7rem);
   height: auto;
-  margin: 0 auto 0.4rem auto;
+  margin: 0 auto 1rem auto;
 }
 
 .register-title {
-  font-size: 1rem; 
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
   font-weight: 700;
   color: #016FB9;
-  margin-bottom: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .text-danger {
-  font-size: 0.75rem;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 500;
   color: #b00020;
-  margin-bottom: 0.4rem; 
+  margin-bottom: 0.5rem;
 }
 
 .form-control {
-  border-radius: 0.45rem;
-  font-size: 0.8rem; 
-  padding: 0.35rem 0.6rem;
+  border-radius: 0.55rem;
+  font-size: clamp(0.9rem, 1vw, 1.05rem);
+  padding: 0.55rem 0.8rem;
   background-color: #fff;
   border: 1px solid #ced4da;
-  color: #182825;
 }
 
-.form-control::placeholder {
-  color: #6D8EA0;
+/* Tooltip come in TakeOrder.css */
+.tooltip {
+  pointer-events: none;
 }
 
-.form-control:focus {
-  border-color: #22AED1;
-  box-shadow: 0 0 0 0.1rem rgba(34, 174, 209, 0.25);
-}
-
-.toggle-password-btn {
-  background-color: #ffffff;
-  color: #016FB9;
-  border: 1px solid #6D8EA0;
-  border-radius: 0.45rem;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.4rem;
-  transition: all 0.2s ease;
-}
-
-.toggle-password-btn:hover {
-  background-color: #22AED1;
-  color: #fff;
-  border-color: #22AED1;
-}
-
-.btn-primary {
-  border-radius: 0.45rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.35rem;
-  background-color: #016FB9;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #22AED1;
-}
-
+/* Footer e link accedi */
 .register-footer {
-  font-size: 0.7rem;
-  margin-top: 0.4rem;
+  font-size: clamp(0.85rem, 1vw, 1rem);
+  margin-top: 0.8rem;
   color: #6D8EA0;
 }
 
-.mb-3 {
-  margin-bottom: 0.5rem !important; 
+.register-link {
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  font-weight: 600;
+  color: #016FB9;
+  text-decoration: none;
+  margin-left: 0.25rem;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.register-link:hover {
+  color: #22AED1;
+  text-decoration: underline;
 }

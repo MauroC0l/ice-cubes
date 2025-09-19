@@ -13,8 +13,6 @@ export const loginHandler = (email, password, rememberMe) =>
     try { data = await res.json(); } 
     catch { throw 'Invalid server response'; }
 
-    console.log("DATA: ", data.user);
-
     if (data.success) return data.user;
     else throw data.errorMsg || 'Login fallito';
   });
@@ -52,7 +50,7 @@ export const checkAuth = () =>
   fetch(`${API_BASE}/user`, { method: 'GET', credentials: 'include' })
     .then(res => res.ok ? res.json() : { isAuth: false, user: {} })
     .then(data => ({ isAuth: !!data.isAuth, user: data.user || {} }));
-
+  
 // Fetch all orders (solo admin)
 export const fetchOrders = () =>
   fetch(`${API_BASE}/orders/all`, { method: 'GET', credentials: 'include' })

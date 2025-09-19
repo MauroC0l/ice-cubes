@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import MyNavbar from "./MyNavbar";
 import { fetchFreezers, fetchOrders } from "../api/API.mjs";
 import "../css/Home.css";
@@ -10,6 +10,7 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMessage, setShowMessage] = useState(false);
+  const [showAuthPopup, setShowAuthPopup] = useState(false); // stato del popup
   const navigate = useNavigate();
 
   // Caricamento dati per admin
@@ -54,6 +55,14 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
     { total_kg: 0, total_bags: 0, total_capacity: 0 }
   );
 
+  const handleShowOrderList = () => {
+    if (isAuth) {
+      navigate("/my-orders");
+    } else {
+      setShowAuthPopup(true); // mostra popup se non loggato
+    }
+  };
+
   if (loading) return <div className="home-page">Loading...</div>;
 
   return (
@@ -97,12 +106,30 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
           </div>
           <div className="home-card">
             <h3>Guarda i miei ordini</h3>
-            <Button onClick={() => navigate("/my-orders")} variant="primary">
+            <Button onClick={handleShowOrderList} variant="primary">
               Vai ai miei ordini
             </Button>
           </div>
         </div>
       )}
+
+      {/* Modal di autenticazione */}
+      <Modal show={showAuthPopup} onHide={() => setShowAuthPopup(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Accesso richiesto</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Devi essere loggato per accedere a questa pagina.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAuthPopup(false)}>
+            Annulla
+          </Button>
+          <Button variant="primary" onClick={() => navigate("/login")}>
+            Accedi
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -36,7 +36,6 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
   const [errors, setErrors] = useState({});
   const [showSummary, setShowSummary] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const [showTipologiaError, setShowTipologiaError] = useState(false);
 
   const navigate = useNavigate();
@@ -111,10 +110,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   const handleSubmitOrder = async () => {
     try {
       await submitOrder(form);
-      setShowSummary(false);
-      setShowToast(true);
       setConfirmedOrder(true);
-      setTimeout(() => setShowToast(false), 1000);
       navigate("/");
     } catch (err) {
       alert("Errore invio ordine: " + err);
@@ -134,18 +130,18 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     </button>
   ));
 
-  // Wrapper tooltip
-  const withTooltip = (condition, message, children) =>
+  // Wrapper tooltip con key
+  const withTooltip = (condition, message, children, key) =>
     condition ? (
-      <Tippy content={message} placement="top" arrow trigger="mouseenter focus">
+      <Tippy key={key} content={message} placement="top" arrow trigger="mouseenter focus">
         <div>{children}</div>
       </Tippy>
     ) : (
-      children
+      <div key={key}>{children}</div>
     );
 
   // Input con tooltip
-  const renderInputWithTooltip = (name, type, placeholder) =>
+  const renderInputWithTooltip = (name, type, placeholder, key) =>
     withTooltip(
       errors[name],
       errors[name],
@@ -156,7 +152,8 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         onChange={handleChange}
         isInvalid={!!errors[name]}
         placeholder={placeholder}
-      />
+      />,
+      key
     );
 
   // DatePicker
@@ -171,40 +168,38 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         placeholderText="Seleziona una data"
         minDate={new Date()}
         customInput={<CustomDateInput hasError={!!errors.data} />}
-      />
+      />,
+      "date-picker"
     );
 
   // TimePicker
-
   const renderTimePickerWithTooltip = () => {
-  const allowedTimes = [];
-  for (let h = 8; h <= 23; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      allowedTimes.push(setHours(setMinutes(new Date(1970, 0, 1), m), h));
+    const allowedTimes = [];
+    for (let h = 8; h <= 23; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        allowedTimes.push(setHours(setMinutes(new Date(1970, 0, 1), m), h));
+      }
     }
-  }
 
-  return withTooltip(
-    errors.orario,
-    errors.orario,
-    <DatePicker
-      selected={form.orario ? new Date(`1970-01-01T${form.orario}:00`) : null}
-      onChange={handleTimeChange}
-      showTimeSelect
-      showTimeSelectOnly
-      includeTimes={allowedTimes}
-      timeCaption="Orario"
-      dateFormat="HH:mm"       // 👈 forza 24h
-      locale={it}              // 👈 usa localizzazione italiana
-      placeholderText="Seleziona un orario"
-      className={`form-control ${errors.orario ? "is-invalid" : ""}`}
-      calendarClassName="react-datepicker datepicker-orario"
-    />
-  );
-};
-
-
-
+    return withTooltip(
+      errors.orario,
+      errors.orario,
+      <DatePicker
+        selected={form.orario ? new Date(`1970-01-01T${form.orario}:00`) : null}
+        onChange={handleTimeChange}
+        showTimeSelect
+        showTimeSelectOnly
+        includeTimes={allowedTimes}
+        timeCaption="Orario"
+        dateFormat="HH:mm"
+        locale={it}
+        placeholderText="Seleziona un orario"
+        className={`form-control ${errors.orario ? "is-invalid" : ""}`}
+        calendarClassName="react-datepicker datepicker-orario"
+      />,
+      "time-picker"
+    );
+  };
 
   // Bottoni tipologia
   const renderTipologiaButtons = () => {
@@ -220,7 +215,6 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         {options.map((opt) => {
           const button = (
             <div
-              key={opt.key}
               className={`tipologia-btn ${form.tipologia === opt.key ? "selected" : ""} ${hasError ? "is-invalid" : ""}`}
               onClick={() =>
                 setForm((prev) => ({
@@ -233,7 +227,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
             </div>
           );
 
-          return withTooltip(hasError, errors.tipologia, button);
+          return withTooltip(hasError, errors.tipologia, button, opt.key);
         })}
       </div>
     );
@@ -245,13 +239,13 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       {!isAuth && (
         <div className="tk-order-card card-summary col">
           <h3 className="cards-header">Informazioni di recapito</h3>
-          {["nome", "cognome", "telefono"].map((field, i) => (
-            <Form.Group className="form-group" key={i}>
+          {["nome", "cognome", "telefono"].map((field) => (
+            <Form.Group className="form-group" key={field}>
               <Form.Label>
                 {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
                 {field === "telefono" ? <FaPhone className="icon" /> : <FaUser className="icon" />}
               </Form.Label>
-              {renderInputWithTooltip(field, "text", field)}
+              {renderInputWithTooltip(field, "text", field, field)}
             </Form.Group>
           ))}
         </div>
@@ -264,7 +258,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
           <Form.Label>
             Quantità (kg): <FaBoxOpen className="icon" />
           </Form.Label>
-          {renderInputWithTooltip("quantita", "number", "quantità")}
+          {renderInputWithTooltip("quantita", "number", "quantità", "quantita")}
         </Form.Group>
 
         <Form.Group className="form-group">
@@ -278,7 +272,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
           <Form.Label>
             Indirizzo: <FaMapMarkerAlt className="icon" />
           </Form.Label>
-          {renderInputWithTooltip("indirizzo", "text", "indirizzo")}
+          {renderInputWithTooltip("indirizzo", "text", "indirizzo", "indirizzo")}
         </Form.Group>
 
         <Form.Group className="form-group">
@@ -334,9 +328,9 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     );
   };
 
+
   return (
     <>
-      {showToast && <div className="order-confirm-toast">Il tuo ordine è stato confermato!</div>}
       {!showSummary ? (
         <div className="tk-page">
           <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} role={isAdmin ? "admin" : "customer"} />

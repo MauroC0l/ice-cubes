@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Card, InputGroup } from 'react-bootstrap';
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 import MyFont from './MyFont';
-import '../css/Register.css'; 
+import '../css/Register.css';
 import { registerHandler } from '../api/API.mjs';
 
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
+
+// ✅ Soluzione 2: componente wrapper con forwardRef
+const TooltipWrapper = forwardRef(({ children, ...props }, ref) => (
+  <span ref={ref} {...props} className="d-block">
+    {children}
+  </span>
+));
 
 function Register({ makeAuth, setUser, logo }) {
   const [form, setForm] = useState({
@@ -54,7 +63,14 @@ function Register({ makeAuth, setUser, logo }) {
     setErrors({});
     setLoading(true);
     try {
-      const user = await registerHandler(form.name, form.surname, form.phoneNumber, form.email, form.password, form.confirmPassword);
+      const user = await registerHandler(
+        form.name,
+        form.surname,
+        form.phoneNumber,
+        form.email,
+        form.password,
+        form.confirmPassword
+      );
       makeAuth(true);
       setUser(user);
       navigate("/");
@@ -65,6 +81,16 @@ function Register({ makeAuth, setUser, logo }) {
       setLoading(false);
     }
   };
+
+  // Tooltip con forwardRef
+  const withTooltip = (condition, message, children) =>
+    condition ? (
+      <Tippy content={message} placement="top" arrow trigger="mouseenter focus">
+        <TooltipWrapper>{children}</TooltipWrapper>
+      </Tippy>
+    ) : (
+      children
+    );
 
   return (
     <div className="register-page">
@@ -80,107 +106,125 @@ function Register({ makeAuth, setUser, logo }) {
 
             <Form onSubmit={handleRegister} noValidate>
               <Form.Group controlId="register-name" className="mb-3">
-                <Form.Control
-                  type="text"
-                  size="lg"
-                  placeholder="Nome"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  isInvalid={!!errors.name}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                {withTooltip(
+                  errors.name,
+                  errors.name,
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Nome"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    isInvalid={!!errors.name}
+                    required
+                  />
+                )}
               </Form.Group>
 
               <Form.Group controlId="register-surname" className="mb-3">
-                <Form.Control
-                  type="text"
-                  size="lg"
-                  placeholder="Cognome"
-                  name="surname"
-                  value={form.surname}
-                  onChange={handleChange}
-                  isInvalid={!!errors.surname}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">{errors.surname}</Form.Control.Feedback>
+                {withTooltip(
+                  errors.surname,
+                  errors.surname,
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Cognome"
+                    name="surname"
+                    value={form.surname}
+                    onChange={handleChange}
+                    isInvalid={!!errors.surname}
+                    required
+                  />
+                )}
               </Form.Group>
 
               <Form.Group controlId="register-email" className="mb-3">
-                <Form.Control
-                  type="text"
-                  size="lg"
-                  placeholder="Email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  isInvalid={!!errors.email}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
+                {withTooltip(
+                  errors.email,
+                  errors.email,
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    isInvalid={!!errors.email}
+                    required
+                  />
+                )}
               </Form.Group>
 
               <Form.Group controlId="register-phoneNumber" className="mb-3">
-                <Form.Control
-                  type="text"
-                  size="lg"
-                  placeholder="Numero di telefono"
-                  name="phoneNumber"
-                  value={form.phoneNumber}
-                  onChange={handleChange}
-                  isInvalid={!!errors.phoneNumber}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">{errors.phoneNumber}</Form.Control.Feedback>
+                {withTooltip(
+                  errors.phoneNumber,
+                  errors.phoneNumber,
+                  <Form.Control
+                    type="text"
+                    size="lg"
+                    placeholder="Numero di telefono"
+                    name="phoneNumber"
+                    value={form.phoneNumber}
+                    onChange={handleChange}
+                    isInvalid={!!errors.phoneNumber}
+                    required
+                  />
+                )}
               </Form.Group>
 
               <Form.Group controlId="register-password" className="mb-3">
-                <InputGroup>
-                  <Form.Control
-                    type={showPassword ? 'text' : 'password'}
-                    size="lg"
-                    placeholder="Password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    isInvalid={!!errors.password}
-                    required
-                  />
-                  <Button
-                    variant="outline-light"
-                    className="toggle-password-btn"
-                    onClick={() => setShowPassword(prev => !prev)}
-                    type="button"
-                  >
-                    {showPassword ? 'Nascondi' : 'Mostra'}
-                  </Button>
-                  <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
-                </InputGroup>
+                {withTooltip(
+                  errors.password,
+                  errors.password,
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? 'text' : 'password'}
+                      size="lg"
+                      placeholder="Password"
+                      name="password"
+                      value={form.password}
+                      onChange={handleChange}
+                      isInvalid={!!errors.password}
+                      required
+                    />
+                    <Button
+                      variant="outline-light"
+                      className="toggle-password-btn"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      type="button"
+                    >
+                      {showPassword ? 'Nascondi' : 'Mostra'}
+                    </Button>
+                  </InputGroup>
+                )}
               </Form.Group>
 
               <Form.Group controlId="register-confirm-password" className="mb-3">
-                <InputGroup>
-                  <Form.Control
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    size="lg"
-                    placeholder="Reinserisci la password"
-                    name="confirmPassword"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    isInvalid={!!errors.confirmPassword}
-                    required
-                  />
-                  <Button
-                    variant="outline-light"
-                    className="toggle-password-btn"
-                    onClick={() => setShowConfirmPassword(prev => !prev)}
-                    type="button"
-                  >
-                    {showConfirmPassword ? 'Nascondi' : 'Mostra'}
-                  </Button>
-                  <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
-                </InputGroup>
+                {withTooltip(
+                  errors.confirmPassword,
+                  errors.confirmPassword,
+                  <InputGroup>
+                    <Form.Control
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      size="lg"
+                      placeholder="Reinserisci la password"
+                      name="confirmPassword"
+                      value={form.confirmPassword}
+                      onChange={handleChange}
+                      isInvalid={!!errors.confirmPassword}
+                      required
+                    />
+                    <Button
+                      variant="outline-light"
+                      className="toggle-password-btn"
+                      onClick={() => setShowConfirmPassword(prev => !prev)}
+                      type="button"
+                    >
+                      {showConfirmPassword ? 'Nascondi' : 'Mostra'}
+                    </Button>
+                  </InputGroup>
+                )}
               </Form.Group>
 
               {errors.general && (
@@ -193,18 +237,20 @@ function Register({ makeAuth, setUser, logo }) {
                 <Button type="submit" variant="primary" size="lg" disabled={loading}>
                   {loading ? '...' : 'Registrati'}
                 </Button>
-
-                <Button
-                  variant="outline-secondary"
-                  size="lg"
-                  className="mt-2"
-                  onClick={() => navigate("/login")}
-                  disabled={loading}
-                >
-                  Torna al register
-                </Button>
               </div>
             </Form>
+
+            {/* ✅ Footer aggiornato */}
+            <div className="register-footer">
+              <span>Sei già iscritto? </span>
+              <Button
+                variant="link"
+                className="p-0 register-link"
+                onClick={() => navigate("/login")}
+              >
+                Accedi
+              </Button>
+            </div>
           </Card.Body>
         </Card>
       </Container>

@@ -3,44 +3,45 @@ import './css/App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import Home from "./components/Home.jsx";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import PageNotFound from "./components/PageNotFound.jsx";
 import ServerDownDisplay from "./components/ServerDownDisplay.jsx";
-import TakeOrder from "./components/TakeOrder.jsx"
+import TakeOrder from "./components/TakeOrder.jsx";
+import OrderList from "./components/OrderList.jsx";
 
 import { checkAuth, handleLogout } from "./api/API.mjs";
 
 function App() {
   const logo = "/images/logo.png";
+  const navigate = useNavigate();
 
-  const [isAuth, setIsAuth] = useState(false); // state to track authentication
-  const [loading, setLoading] = useState(true); // loading state while checking auth
-  const [serverStatus, setServerStatus] = useState(true); // server status
-
-  const [user, setUser] = useState(null); // store user data
-  const [isAdmin, setIsAdmin] = useState(false); // store if user is admin
-
+  const [isAuth, setIsAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [serverStatus, setServerStatus] = useState(true);
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState(false);
 
-  const makeAuth = (value) => setIsAuth(value); // function to set auth state
+  const makeAuth = (value) => setIsAuth(value);
 
-  // Wrapper per logout
+  // Logout wrapper
   const handleLogoutWrapper = async () => {
     try {
       await handleLogout();
-      setIsAuth(false);  // reset authentication state
-      setUser(null);     // clear user data
-      setIsAdmin(false); // reset admin state
+      navigate("/", { replace: true });
+      setIsAuth(false);
+      setUser(null);
+      setIsAdmin(false);
     } catch (err) {
       console.error("Errore durante il logout", err);
     }
   };
 
-  // Controllo autenticazione all'avvio
+  // Check auth on mount
   useEffect(() => {
     checkAuth()
       .then(({ isAuth, user }) => {
@@ -50,107 +51,106 @@ function App() {
       })
       .catch(err => {
         console.error(err);
-        setServerStatus(false); // server not reachable
+        setServerStatus(false);
       })
-      .finally(() => setLoading(false)); // stop loading spinner
+      .finally(() => setLoading(false));
   }, []);
 
-  // show loading spinner while checking authentication
   if (loading) return (
     <div className="auth-loading-container">
-      <div className="spinner" aria-label="Loading spinner" role="status" />
-      Accesso in corso..
+      <div className="spinner" role="status" aria-label="Loading spinner" />
+      Accesso in corso...
     </div>
   );
 
+  if (!serverStatus) return <ServerDownDisplay />;
+
+  const currentUser = user ? {
+    name: user.name,
+    surname: user.surname,
+    phoneNumber: user.phoneNumber,
+    email: user.email
+  } : null;
 
   return (
-    <>
-      {serverStatus ? (
-        <Routes>
-          {/* Home page: default route */}
-          <Route
-            path="/"
-            element={
-              <Home
-                isAdmin={isAdmin}
-                handleLogoutWrapper={handleLogoutWrapper}
-                name={user?.name}
-                isAuth={isAuth}
-                confirmedOrder={confirmedOrder}
-                setConfirmedOrder={setConfirmedOrder}
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Home
+            isAdmin={isAdmin}
+            handleLogoutWrapper={handleLogoutWrapper}
+            name={user?.name}
+            isAuth={isAuth}
+            confirmedOrder={confirmedOrder}
+            setConfirmedOrder={setConfirmedOrder}
+          />
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          isAuth
+            ? <Navigate to="/" replace />
+            : <Login
+                setIsAdmin={setIsAdmin}
+                logo={logo}
+                makeAuth={makeAuth}
+                setUser={setUser}
+                serverStatus={serverStatus}
+                setServerStatus={setServerStatus}
               />
-            }
-          />
+        }
+      />
 
-          {/* Login page: only accessible if not authenticated */}
-          <Route
-            path="/login"
-            element={
-              isAuth ? (
-                <Navigate to="/" replace />
-              ) : (
-                <Login
-                  setIsAdmin={setIsAdmin}
-                  logo={logo}
-                  makeAuth={makeAuth}
-                  setUser={setUser}
-                  serverStatus={serverStatus}
-                  setServerStatus={setServerStatus}
-                />
-              )
-            }
-          />
-
-          {/* Register page */}
-          <Route
-            path="/register"
-            element={
-              isAuth ? (
-                <Navigate to="/" replace />
-              ) : (
-                <Register
-                  logo={logo}
-                  makeAuth={makeAuth}
-                  setUser={setUser}
-                />
-              )
-            }
-          />
-
-          {/* Redirect from /make-order to /make-orders */}
-          <Route
-            path="/make-order" element={ <TakeOrder
-                isAdmin={isAdmin}
-                handleLogoutWrapper={handleLogoutWrapper}
-                isAuth={isAuth}
-                setConfirmedOrder={setConfirmedOrder}
-                user={{
-                  name: user?.name,
-                  surname: user?.surname,
-                  phone: user?.phoneNumber,
-                  email: user?.email
-                }}
+      <Route
+        path="/register"
+        element={
+          isAuth
+            ? <Navigate to="/" replace />
+            : <Register
+                logo={logo}
+                makeAuth={makeAuth}
+                setUser={setUser}
               />
-            }
-          />
+        }
+      />
 
-          {/* Catch-all route for 404 Not Found */}
-          <Route
-            path="*"
-            element={
-              <PageNotFound
-                handleLogoutWrapper={handleLogoutWrapper}
-                isAuth={isAuth}
-              />
-            }
+      <Route
+        path="/make-order"
+        element={
+          <TakeOrder
+            isAdmin={isAdmin}
+            isAuth={isAuth}
+            handleLogoutWrapper={handleLogoutWrapper}
+            setConfirmedOrder={setConfirmedOrder}
+            user={currentUser}
           />
-        </Routes>
-      ) : (
-        // Server down fallback
-        <ServerDownDisplay />
-      )}
-    </>
+        }
+      />
+
+      <Route
+        path="/my-orders"
+        element={
+          <OrderList
+            isLogged={isAuth}
+            isAdmin={isAdmin}
+            handleLogoutWrapper={handleLogoutWrapper}
+          />
+        }
+      />
+
+      <Route
+        path="*"
+        element={
+          <PageNotFound
+            handleLogoutWrapper={handleLogoutWrapper}
+            isAuth={isAuth}
+          />
+        }
+      />
+    </Routes>
   );
 }
 

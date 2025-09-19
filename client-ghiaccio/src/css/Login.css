@@ -1,57 +1,77 @@
+/* Pagina login */
 .login-page {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   min-height: 100vh;
   background-color: #f4f6f8;
   padding: 1rem;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
+/* Contenitore centrale */
 .login-container {
   width: 100%;
-  max-width: 30%;
-  max-height: 30%;
-  min-width: 280px;
+  max-width: 26rem; /* ridotto */
+  min-width: 22rem;  /* ridotto */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Card login */
 .login-card {
-  padding: 2rem 1.5rem;
+  width: 100%;
+  padding: 1.5rem 1.5rem; /* ridotto */
   border-radius: 1rem;
   background-color: #ffffff;
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0e0e0;
   text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.login-card:hover {
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Logo */
 .login-logo {
   display: block;
-  width: 15%;
+  width: 18%;
   max-width: 60px;
   height: auto;
   margin: 0 auto 1rem auto;
 }
 
+/* Titolo login */
 .login-title {
-  font-size: 1.35rem;
+  font-size: 1.4rem; /* ridotto */
   font-weight: 700;
   color: #016FB9;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem; /* ridotto */
 }
 
+/* Messaggi di errore */
 .text-danger {
   font-size: 0.875rem;
   font-weight: 500;
   color: #b00020;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem; /* ridotto */
+  text-align: center; /* centrato */
 }
 
+/* Input form */
 .form-control {
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.65rem; /* leggermente più arrotondato */
+  font-size: 0.875rem; /* leggermente più piccolo */
   padding: 0.5rem 0.75rem;
   background-color: #fff;
   border: 1px solid #ced4da;
   color: #182825;
+  transition: all 0.2s ease;
 }
 
 .form-control::placeholder {
@@ -63,13 +83,14 @@
   box-shadow: 0 0 0 0.15rem rgba(34, 174, 209, 0.25);
 }
 
+/* Pulsante toggle password */
 .toggle-password-btn {
   background-color: #ffffff;
   color: #016FB9;
   border: 1px solid #6D8EA0;
-  border-radius: 0.5rem;
+  border-radius: 0.65rem;
   font-size: 0.8rem;
-  padding: 0.3rem 0.5rem;
+  padding: 0.25rem 0.5rem; /* ridotto */
   transition: all 0.2s ease;
 }
 
@@ -79,21 +100,77 @@
   border-color: #22AED1;
 }
 
+/* Pulsante principale */
 .btn-primary {
-  border-radius: 0.5rem;
+  border-radius: 0.65rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.55rem;
+  font-size: 0.9rem; /* ridotto */
+  padding: 0.6rem 0; /* ridotto */
   background-color: #016FB9;
   border: none;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
   background-color: #22AED1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 174, 209, 0.25);
 }
 
+/* Pulsanti secondari */
+.btn-outline-secondary,
+.btn-outline-info {
+  border-radius: 0.65rem;
+  font-size: 0.875rem; /* ridotto */
+  padding: 0.55rem 0; /* ridotto */
+  transition: all 0.2s ease;
+}
+
+/* Hover pulsanti secondari */
+.btn-outline-secondary:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-outline-info:hover {
+  background-color: #e0f7fa;
+  border-color: #22AED1;
+  color: #016FB9;
+}
+
+/* Gruppo pulsanti */
+.d-grid {
+  display: grid;
+  gap: 0.5rem; /* ridotto */
+}
+
+/* Footer login */
 .login-footer {
   font-size: 0.8rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   color: #6D8EA0;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Responsive per mobile */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.2rem; /* ridotto */
+  }
+
+  .login-title {
+    font-size: 1.2rem;
+  }
+
+  .login-logo {
+    width: 25%;
+    max-width: 50px;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary,
+  .btn-outline-info {
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+  }
 }

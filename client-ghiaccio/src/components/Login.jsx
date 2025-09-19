@@ -29,7 +29,6 @@ function Login({ makeAuth, setUser, logo, serverStatus, setServerStatus, setIsAd
     try { 
       const user = await loginHandler(email, password, rememberMe);
       makeAuth(true);
-      console.log("LOGIN: ",user);
       setUser(user);
       setIsAdmin(user?.role === 'admin');
       setServerStatus(true);
@@ -55,7 +54,7 @@ function Login({ makeAuth, setUser, logo, serverStatus, setServerStatus, setIsAd
             <div className="text-center mb-4">
               <img src={logo} alt="Ice Cube Logo" className="login-logo" />
               <MyFont>
-                <h1 className="login-title">Inserisci le tue credenziali</h1>
+                <h1 className="login-title">Accedi ad Ices Cube</h1>
               </MyFont>
             </div>
 
