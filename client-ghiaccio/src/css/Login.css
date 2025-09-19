@@ -1,75 +1,95 @@
-/* Pagina login */
+/* ----- Layout principale ----- */
 .login-page {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f6f8;
-  padding: 1rem;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding: 5vh 5vw;
+  background: linear-gradient(135deg, #f9fafb, #eef6fb);
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  color: #182825;
+  box-sizing: border-box;
+  animation: fadeIn 1s ease;
 }
 
-/* Contenitore centrale */
+/* ----- Contenitore centrale ----- */
 .login-container {
   width: 100%;
-  max-width: 26rem; /* ridotto */
-  min-width: 22rem;  /* ridotto */
+  max-width: 28rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  animation: fadeIn 0.8s ease;
 }
 
-/* Card login */
+/* ----- Card login ----- */
 .login-card {
   width: 100%;
-  padding: 1.5rem 1.5rem; /* ridotto */
-  border-radius: 1rem;
-  background-color: #ffffff;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e0e0e0;
+  padding: clamp(1.5rem, 2vw, 2.5rem);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0.8vw 2.4vw rgba(1, 111, 185, 0.12);
+  border: 1px solid rgba(1, 111, 185, 0.08);
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: visible;
+  transition: all 0.3s ease;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(34,174,209,0.08), transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none; /* <-- aggiungi questa riga */
 }
 
 .login-card:hover {
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  transform: translateY(-0.6vh) scale(1.02);
+  box-shadow: 0 1.4vw 3.4vw rgba(1, 111, 185, 0.25);
 }
 
-/* Logo */
+/* ----- Logo ----- */
 .login-logo {
   display: block;
   width: 18%;
   max-width: 60px;
-  height: auto;
   margin: 0 auto 1rem auto;
 }
 
-/* Titolo login */
+/* ----- Titolo login ----- */
 .login-title {
-  font-size: 1.4rem; /* ridotto */
-  font-weight: 700;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 800;
   color: #016FB9;
-  margin-bottom: 1.5rem; /* ridotto */
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, #016FB9, #22AED1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInDown 0.6s ease;
 }
 
-/* Messaggi di errore */
+/* ----- Messaggi di errore ----- */
 .text-danger {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #b00020;
-  margin-bottom: 0.8rem; /* ridotto */
-  text-align: center; /* centrato */
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-weight: 600;
+  color: #721c24;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
-/* Input form */
+/* ----- Input form ----- */
 .form-control {
-  border-radius: 0.65rem; /* leggermente più arrotondato */
-  font-size: 0.875rem; /* leggermente più piccolo */
-  padding: 0.5rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.75rem;
   background-color: #fff;
-  border: 1px solid #ced4da;
+  border: 1px solid rgba(1,111,185,0.2);
   color: #182825;
   transition: all 0.2s ease;
 }
@@ -83,14 +103,14 @@
   box-shadow: 0 0 0 0.15rem rgba(34, 174, 209, 0.25);
 }
 
-/* Pulsante toggle password */
+/* ----- Pulsante toggle password ----- */
 .toggle-password-btn {
   background-color: #ffffff;
   color: #016FB9;
-  border: 1px solid #6D8EA0;
-  border-radius: 0.65rem;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem; /* ridotto */
+  border: 1px solid #22AED1;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
   transition: all 0.2s ease;
 }
 
@@ -98,64 +118,97 @@
   background-color: #22AED1;
   color: #fff;
   border-color: #22AED1;
+  transform: translateY(-0.1vh);
 }
 
-/* Pulsante principale */
+/* ----- Pulsante principale ----- */
 .btn-primary {
-  border-radius: 0.65rem;
+  border-radius: 1rem;
   font-weight: 600;
-  font-size: 0.9rem; /* ridotto */
-  padding: 0.6rem 0; /* ridotto */
-  background-color: #016FB9;
+  font-size: 0.95rem;
+  padding: 0.7rem 0;
+  background: linear-gradient(135deg, #016FB9, #22AED1);
   border: none;
-  transition: all 0.2s ease;
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0.5rem 1.2rem rgba(1, 111, 185, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #22AED1;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 174, 209, 0.25);
+  background: linear-gradient(135deg, #22AED1, #016FB9);
+  transform: translateY(-0.2vh) scale(1.02);
+  box-shadow: 0 0.8rem 2rem rgba(1, 111, 185, 0.35);
 }
 
-/* Pulsanti secondari */
+/* ----- Pulsanti secondari ----- */
 .btn-outline-secondary,
 .btn-outline-info {
-  border-radius: 0.65rem;
-  font-size: 0.875rem; /* ridotto */
-  padding: 0.55rem 0; /* ridotto */
-  transition: all 0.2s ease;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  padding: 0.65rem 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-width: 2px;
 }
 
-/* Hover pulsanti secondari */
+/* Secondario grigio */
+.btn-outline-secondary {
+  border-color: #ced4da;
+  color: #182825;
+  background: transparent;
+}
+
 .btn-outline-secondary:hover {
-  background-color: #f0f0f0;
+  background: rgba(1, 111, 185, 0.08);
+  border-color: #016FB9;
+  color: #016FB9;
+  transform: translateY(-0.15vh) scale(1.02);
+  box-shadow: 0 0.6rem 1.5rem rgba(1, 111, 185, 0.2);
+}
+
+/* Secondario info */
+.btn-outline-info {
+  border-color: #22AED1;
+  color: #016FB9;
+  background: transparent;
 }
 
 .btn-outline-info:hover {
-  background-color: #e0f7fa;
-  border-color: #22AED1;
+  background: rgba(34, 174, 209, 0.15);
+  border-color: #016FB9;
   color: #016FB9;
+  transform: translateY(-0.15vh) scale(1.02);
+  box-shadow: 0 0.6rem 1.5rem rgba(34, 174, 209, 0.25);
 }
 
-/* Gruppo pulsanti */
+/* ----- Gruppo pulsanti ----- */
 .d-grid {
   display: grid;
-  gap: 0.5rem; /* ridotto */
+  gap: 0.8rem;
 }
 
-/* Footer login */
+/* ----- Footer login ----- */
 .login-footer {
-  font-size: 0.8rem;
-  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  margin-top: 1.8rem;
   color: #6D8EA0;
   text-align: center;
-  flex-shrink: 0;
 }
 
-/* Responsive per mobile */
+/* ----- Animazioni ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----- Responsive mobile ----- */
 @media (max-width: 480px) {
   .login-card {
-    padding: 1.2rem; /* ridotto */
+    padding: 1.2rem;
   }
 
   .login-title {
