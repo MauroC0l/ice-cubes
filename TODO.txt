@@ -1,16 +1,14 @@
 
 
 IMPORTANTI
-- Mostrare lista ordini
 - Inserire la modifica del profilo
-- Inserire la modifica degli ordini (entro tot ore dall'invio)
-- Gesire ordini e login/LOGOUT
+- Visuale dell'admin
 
 MEDIE
 - Far si che l'admin possa inserire degli ordini
 
+
 INUTILI
-- sovrapporre correttamente il colore di intestazione nei menù a tendina nella selezione della data e dell'ora in TakeOrder
 
 
 
@@ -20,4 +18,7 @@ FATTE:
 - Inserire la DATAAAA negli ordini
 - Sistemare alert per invio degli ordini 
 - setConfirmOrder(true) quando si invia un ordine
-
+- Mostrare lista ordini
+- Inserire la modifica degli ordini (entro tot ore dall'invio)
+- Gesire ordini e login/LOGOUT
+- sovrapporre correttamente il colore di intestazione nei menù a tendina nella selezione della data e dell'ora in TakeOrder
