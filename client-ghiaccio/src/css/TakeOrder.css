@@ -2,8 +2,8 @@
 .tk-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding: 1.38vh 1.84vw;
+  min-height: 105vh; 
+  padding: 1.45vh 1.93vw; 
   background: #f9fafb;
   color: #182825;
   margin-top: 4.6vh;
@@ -13,12 +13,12 @@
 /* ----- Header ----- */
 .tk-header {
   text-align: center;
-  margin: 4.6vh 1.84vw 1.84vh;
+  margin: 4.6vh 1.93vw 1.93vh;
 }
 
 .tk-header h1,
 .tk-summary-header h1 {
-  font-size: clamp(2.3vw, 2.76vw, 3.22vw);
+  font-size: clamp(2.3vw, 2.76vw, 3.22vw); /* mantiene l’header invariato */
   font-weight: 700;
   color: #016FB9;
   margin-top: 2.76vh;
@@ -30,43 +30,43 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.38vw;
+  gap: 1.45vw; 
   width: 100%;
-  max-width: 82.8%;
-  margin: 0 auto 2.76vh;
+  max-width: 90%; 
+  margin: 0 auto 2.9vh; 
 }
 
 .tk-order-card {
-  flex: 1 1 18.4vw;
-  max-width: 22.08vw;
-  min-width: 14.72vw;
-  min-height: 11.04vh;
+  flex: 1 1 19.32vw; 
+  max-width: 23.18vw; 
+  min-width: 15.46vw; 
+  min-height: 11.6vh; 
   background: linear-gradient(145deg, #f0f8ff, #e0f0fa);
-  border-radius: 1.104vw;
-  padding: 1.104vw;
-  box-shadow: 0 0.644vh 1.38vh rgba(0,0,0,0.08);
-  border: 0.1104vw solid #e5e7eb;
+  border-radius: 1.16vw; 
+  padding: 1.16vw; 
+  box-shadow: 0 0.676vh 1.45vh rgba(0,0,0,0.084); 
+  border: 0.116vw solid #e5e7eb; 
   display: flex;
   flex-direction: column;
-  gap: 0.368vw;
+  gap: 0.386vw; 
   text-align: center;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .tk-order-card:hover {
-  box-shadow: 0 0.276vh 0.644vh rgba(0,0,0,0.1);
+  box-shadow: 0 0.29vh 0.676vh rgba(0,0,0,0.105);
   border-color: #22AED1;
 }
 
 .cards-header {
-  font-size: clamp(1.38vw, 1.656vw, 1.84vw);
+  font-size: clamp(1.57vw, 1.74vw, 1.93vw); 
   font-weight: 700;
   color: #016FB9;
   width: 100%;
   text-align: left;
-  border-bottom: 0.184vh solid #016FB9;
-  margin-bottom: 0.736vh;
-  padding-bottom: 0.736vh;
+  border-bottom: 0.193vh solid #016FB9; 
+  margin-bottom: 0.772vh; 
+  padding-bottom: 0.772vh; 
 }
 
 /* ----- Order form ----- */
@@ -74,31 +74,31 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 0.736vh;
+  gap: 0.772vh; 
   overflow: visible;
-  padding-bottom: 1.38vh;
+  padding-bottom: 1.45vh; 
 }
 
 .order-form .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.368vh;
+  gap: 0.386vw; 
 }
 
 .order-form label {
   font-weight: 600;
-  font-size: 0.92vw;
+  font-size: 0.966vw; 
   color: #016FB9;
   display: flex;
   align-items: center;
-  gap: 0.368vw;
+  gap: 0.386vw; 
 }
 
 .order-form .form-control {
-  font-size: 0.828vw;
-  border-radius: 0.736vw;
-  border: 0.1104vw solid #e5e7eb;
-  padding: 0.46vh 0.736vw;
+  font-size: 0.869vw; 
+  border-radius: 0.772vw; 
+  border: 0.116vw solid #e5e7eb; 
+  padding: 0.483vh 0.772vw; 
 }
 
 .order-form .form-control.is-invalid {
@@ -107,19 +107,19 @@
 
 /* ----- Calendar button ----- */
 .calendar-btn {
-  border-radius: 0.46vw;
-  border: 0.1104vw solid #0d6efd;
+  border-radius: 0.483vw; 
+  border: 0.116vw solid #0d6efd; 
   background: #fff;
   color: #0d6efd;
   display: flex;
   align-items: center;
-  padding: 0.368vh 1.38vw;
-  gap: 0.368vw;
-  font-size: 0.736vw;
+  padding: 0.386vh 1.45vw; 
+  gap: 0.386vw; 
+  font-size: 0.772vw; 
   transition: 0.2s;
-  min-width: 4.6vw;
-  max-width: 16.56vw;
-  min-height: 3.22vh;
+  min-width: 4.83vw;
+  max-width: 17.38vw;
+  min-height: 3.38vh;
 }
 
 .calendar-btn:hover {
@@ -134,16 +134,16 @@
 /* ----- Date & Time picker ----- */
 .react-datepicker,
 .react-datepicker.datepicker-orario {
-  min-height: 13.8rem;
+  min-height: 14.49rem; 
   font-family: inherit;
-  border-radius: 0.736rem !important;
-  border: 0.1196rem solid #22AED1 !important;
-  box-shadow: 0 0.23rem 0.69rem rgba(0,0,0,0.1);
+  border-radius: 0.772rem !important; 
+  border: 0.1256rem solid #22AED1 !important; 
+  box-shadow: 0 0.2415rem 0.7245rem rgba(0,0,0,0.105);
   z-index: 9999;
 }
 
 .react-datepicker.datepicker-orario {
-  width: 5.06rem;
+  width: 5.31rem; 
 }
 
 .react-datepicker__header {
@@ -173,12 +173,12 @@
 }
 
 .react-datepicker__navigation--previous::before {
-  border-width: 0.368rem 0.828rem 0.276rem 0;
+  border-width: 0.386rem 0.869rem 0.29rem 0;
   border-color: transparent blue transparent transparent;
 }
 
 .react-datepicker__navigation--next::before {
-  border-width: 0.368rem 0 0.276rem 0.828rem;
+  border-width: 0.386rem 0 0.29rem 0.869rem;
   border-color: transparent transparent transparent blue;
 }
 
@@ -186,21 +186,21 @@
 .order-buttons {
   display: flex;
   justify-content: center;
-  gap: 0.736vw;
-  margin-top: 0.92vh;
+  gap: 0.772vw; 
+  margin-top: 0.966vh; 
   flex-wrap: wrap;
   position: relative;
   z-index: 10;
 }
 
 .order-buttons .btn {
-  flex: 1 1 9.2vw;
-  max-width: 11.04vw;
-  min-width: 6.44vw;
-  border-radius: 0.644vw;
+  flex: 1 1 9.66vw; 
+  max-width: 11.592vw; 
+  min-width: 6.762vw; 
+  border-radius: 0.676vw; 
   font-weight: 600;
-  font-size: clamp(0.828vw, 1.104vw, 0.92vw);
-  padding: 0.552vh 0;
+  font-size: clamp(0.869vw, 1.159vw, 0.966vw);
+  padding: 0.5796vh 0; 
   border: none;
   transition: all 0.3s;
 }
@@ -211,8 +211,8 @@
 }
 
 .order-buttons .btn-primary:hover {
-  transform: translateY(-0.184vh);
-  box-shadow: 0 0.46vh 0.92vh rgba(34,174,209,0.3);
+  transform: translateY(-0.193vh); 
+  box-shadow: 0 0.483vh 0.966vh rgba(34,174,209,0.315);
 }
 
 .order-buttons .btn-secondary {
@@ -221,43 +221,43 @@
 }
 
 .order-buttons .btn-secondary:hover {
-  transform: translateY(-0.184vh);
+  transform: translateY(-0.193vh);
   background: #4b8ea0;
 }
 
 /* ----- Order summary ----- */
 .tk-order-summary {
   background: linear-gradient(145deg, #f0f8ff, #d0e8f8);
-  border-radius: 1.656vw;
-  padding: 1.84vw;
-  box-shadow: 0 1.104vh 2.3vh rgba(0, 0, 0, 0.12);
-  max-width: 41.4vw;
-  margin: 1.84vh auto 2.76vh;
+  border-radius: 1.738vw; 
+  padding: 1.932vw; 
+  box-shadow: 0 1.159vh 2.415vh rgba(0, 0, 0, 0.126);
+  max-width: 43.47vw; 
+  margin: 1.932vh auto 2.898vh; 
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.92vh;
+  gap: 0.966vh; 
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .summary-row {
   display: flex;
   align-items: center;
-  gap: 0.92vw;
+  gap: 0.966vw; 
   background: #ffffffcc;
-  border-radius: 1.104vw;
-  padding: 0.92vh 1.38vw;
-  font-size: 0.92vw;
+  border-radius: 1.16vw; 
+  padding: 0.966vh 1.449vw; 
+  font-size: 0.966vw; 
   transition: background 0.3s, transform 0.2s;
 }
 
 .summary-row:hover {
   background: #e6f4fc;
-  transform: translateX(0.092vw);
+  transform: translateX(0.096vw); 
 }
 
 .summary-row span {
-  flex: 0 0 6.44vw;
+  flex: 0 0 6.762vw; 
   color: #016FB9;
   font-weight: 500;
 }
@@ -265,13 +265,13 @@
 .summary-row strong {
   color: #0d3b66;
   font-weight: 600;
-  font-size: 1.012vw;
+  font-size: 1.063vw; 
 }
 
 .summary-row .icon {
   color: #22AED1;
-  font-size: 1.472vw;
-  min-width: 1.472vw;
+  font-size: 1.5456vw; 
+  min-width: 1.5456vw; 
 }
 
 /* ----- Tipologia buttons ----- */
@@ -282,18 +282,18 @@
 }
 
 .tipologia-btn {
-  border: 0.1104vw solid #0d6efd;
-  padding: 0.736vh 1.38vw;
+  border: 0.116vw solid #0d6efd; 
+  padding: 0.772vh 1.449vw; 
   cursor: pointer;
-  border-radius: 0.46vw;
+  border-radius: 0.483vw; 
   transition: all 0.3s ease;
   background-color: #fff;
   color: #0d6efd;
   font-weight: 600;
-  font-size: 0.736vw;
-  flex: 1 1 9.2vw;
-  max-width: 9.2vw;
-  min-height: 2.576vh;
+  font-size: clamp(0.772vw, 0.8106vw, 0.8106vw); 
+  flex: 1 1 9.66vw; 
+  max-width: 9.66vw;
+  min-height: 2.7048vh; 
   display: flex;
   justify-content: center;
   align-items: center;

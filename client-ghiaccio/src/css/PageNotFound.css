@@ -1,80 +1,137 @@
-.page-not-found-container-horizontal {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+/* ----- Container principale ----- */
+.pagenotfound-container {
   height: 100vh;
-  padding: 0 3rem;
-  background: #f9fafb; /* coerente con home e tk-page */
-  font-family: 'Inter', sans-serif;
-  gap: 3rem;
-}
-
-/* Immagine */
-.pnf-image-wrapper {
-  flex-shrink: 0;
-  border-radius: 0.8rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.pnf-image {
-  width: 25rem;
-  height: auto;
-  display: block;
-  border-radius: 0.75rem;
-}
-
-/* Testo */
-.pnf-text-wrapper {
-  max-width: 35rem;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* Titolo principale */
-.pnf-title {
-  font-size: 4rem;
-  font-weight: 700;
-  color: #016FB9;
-  margin-bottom: 0.5rem;
-}
-
-/* Sottotitolo */
-.pnf-subtitle {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #22AED1;
-  margin-bottom: 1.5rem;
-}
-
-/* Descrizione */
-.pnf-description {
-  font-size: 1.2rem;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f9fafb, #eef6fb);
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   color: #182825;
-  line-height: 1.6;
+  padding: 2vh 2vw;
+  box-sizing: border-box;
+  animation: fadeIn 1s ease;
 }
 
-.pnf-description p {
-  margin: 0.5rem 0;
+/* ----- Box centrale ----- */
+.pagenotfound-box {
+  background: rgba(255, 255, 255, 0.95);
+  padding: clamp(2rem, 3vw, 3rem);
+  border-radius: 1.5rem;
+  box-shadow: 0 0.8vw 2.4vw rgba(1, 111, 185, 0.12);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-/* Pulsante homepage */
-.pnf-home-button {
-  margin-top: 2rem;
-  padding: 0.75rem 2rem;
-  background-color: #016FB9;
-  color: #fff;
+.pagenotfound-box::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(34,174,209,0.08), transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+.pagenotfound-box:hover {
+  box-shadow: 0 1.4vw 3.4vw rgba(1, 111, 185, 0.25);
+  transform: translateY(-0.6vh) scale(1.02);
+}
+
+/* ----- Titolo ----- */
+.pagenotfound-title {
+  font-weight: 800;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  color: #016FB9;
+  background: linear-gradient(90deg, #016FB9, #22AED1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ----- Sottotitolo ----- */
+.pagenotfound-subtitle {
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+  color: #004085;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ----- Testo descrizione ----- */
+.pagenotfound-text {
+  font-weight: 500;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.5;
+  color: #6D8EA0;
+  margin-bottom: 2vh;
+}
+
+/* ----- Immagine ----- */
+.pagenotfound-image {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  border: 1px solid #93c5fd;
+  margin-bottom: 2vh;
+  position: relative;
+  z-index: 2;
+}
+
+/* ----- Pulsante Home ----- */
+.pagenotfound-btn {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #016FB9, #22AED1);
   border: none;
-  border-radius: 0.5rem;
+  color: #fff;
+  padding: 0.8vh 3vw;
+  border-radius: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 0.8vw 2vw rgba(1, 111, 185, 0.35);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.pnf-home-button:hover {
-  background-color: #22AED1;
-  transform: translateY(-2px);
+.pagenotfound-btn:hover {
+  background: linear-gradient(135deg, #22AED1, #016FB9);
+  box-shadow: 0 1.2vw 2.6vw rgba(34, 174, 209, 0.45);
+}
+
+.pagenotfound-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* ----- Animazione fadeIn ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(1.2vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 480px) {
+  .pagenotfound-box {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .pagenotfound-title {
+    font-size: 2.2rem;
+  }
+
+  .pagenotfound-subtitle {
+    font-size: 1.8rem;
+  }
+
+  .pagenotfound-btn {
+    padding: 0.6vh 2.5vw;
+    font-size: 1rem;
+  }
 }

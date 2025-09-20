@@ -121,6 +121,15 @@ export const getOrdersByUserId = (userId) =>
     });
   }));
 
+export const updateOrder = (order, orderId) =>
+  openDb().then(db => new Promise((resolve, reject) => {
+    const sql = 'UPDATE orders SET quantity = ?, request_date = ?, request_hour = ?, delivery_date = ?, delivery_hour = ?, delivery_address = ?, ice_type = ?, status = ? WHERE id = ?';
+    db.run(sql, [order.quantity, order.request_date, order.request_hour, order.delivery_date, order.delivery_hour, order.delivery_address, order.ice_type, order.status, orderId], function (err) {
+      closeDb(db);
+      if (err) return reject(err);
+      resolve(this.changes);
+    });
+  }));
 
 export const submitOrder = (order) =>
   openDb().then(db => new Promise((resolve, reject) => {

@@ -52,6 +52,16 @@ export const submitOrder = (orderData) =>
     body: JSON.stringify(orderData)
   }).then(() => { return; });
 
+// Update order
+export const updateOrder = (orderData, orderId) => {
+  fetch(`${API_BASE}/update-order/${orderId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(orderData)
+  }).then(() => { return; });
+};
+
 // Retrieve user orders
 export const fetchUserOrders = () =>
   fetch(`${API_BASE}/orders`, { 
@@ -63,6 +73,14 @@ export const fetchUserOrders = () =>
       if (data.success) return data.orders;
       else throw data.message || "Failed to fetch user orders";
     });
+
+// Delete user order
+export const deleteUserOrder = (orderId) => {
+  return fetch(`${API_BASE}/delete-order/${orderId}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  }).then(() => { return; });
+};
 
 
 

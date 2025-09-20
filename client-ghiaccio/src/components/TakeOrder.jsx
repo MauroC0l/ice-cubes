@@ -1,5 +1,5 @@
-import { useState, forwardRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, forwardRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 
@@ -19,11 +19,14 @@ import {
 
 import MyNavbar from "./MyNavbar";
 import "../css/TakeOrder.css";
-import { submitOrder } from "../api/API.mjs";
+import { submitOrder, updateOrder } from "../api/API.mjs";
 import { setHours, setMinutes } from "date-fns";
 import { it } from "date-fns/locale";
 
 function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrder }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     nome: user?.name || "",
     cognome: user?.surname || "",
@@ -38,7 +41,22 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   const [errors, setErrors] = useState({});
   const [showTipologiaError, setShowTipologiaError] = useState(false);
 
-  const navigate = useNavigate();
+  // Popola il form se viene passato un ordine (modifica)
+  useEffect(() => {
+    if (location.state?.order) {
+      const order = location.state.order;
+      setForm({
+        nome: order.nome || user?.name || "",
+        cognome: order.cognome || user?.surname || "",
+        telefono: order.telefono || user?.phoneNumber || "",
+        quantita: order.quantity ? String(order.quantity) : "", // 🔧 normalizzazione a stringa
+        tipologia: order.ice_type || "",
+        indirizzo: order.delivery_address || "",
+        data: order.delivery_date || "",
+        orario: order.delivery_hour || "",
+      });
+    }
+  }, [location.state, user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +68,10 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       ...prev,
       data: date
         ? String(date.getDate()).padStart(2, "0") +
-        "-" +
-        String(date.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        date.getFullYear()
+          "-" +
+          String(date.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          date.getFullYear()
         : "",
     }));
 
@@ -78,15 +96,16 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       }
     }
 
-    if (!form.quantita.trim())
-      newErrors.quantita = "Inserisci una quantità";
+    // gestire sempre quantita come stringa
+    if (!String(form.quantita).trim())
+      newErrors.quantita = "La quantità è obbligatoria";
     else if (isNaN(form.quantita) || Number(form.quantita) <= 0)
       newErrors.quantita = "La quantità deve essere un numero positivo";
 
     if (!form.tipologia.trim())
       newErrors.tipologia = "Seleziona una tipologia";
 
-    if (!form.indirizzo.trim())
+    if (!String(form.indirizzo).trim())
       newErrors.indirizzo = "L’indirizzo è obbligatorio";
 
     if (!form.data.trim())
@@ -95,26 +114,58 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     if (!form.orario.trim())
       newErrors.orario = "L’orario è obbligatorio";
 
+
+    if (form.data && form.orario) {
+      try {
+        // data formattata come "dd-mm-yyyy"
+        const [day, month, year] = form.data.split("-").map(Number);
+        const [hour, minute] = form.orario.split(":").map(Number);
+
+        const selectedDate = new Date(year, month - 1, day, hour, minute);
+        const now = new Date();
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const chosenDay = new Date(year, month - 1, day);
+        chosenDay.setHours(0, 0, 0, 0);
+
+        if ((chosenDay.getTime() == today.getTime()) && (selectedDate.getTime() <= now.getTime())) {
+          newErrors.data = "La data e l’orario devono essere futuri";
+        } 
+      } catch (e) {
+        newErrors.data = "Data o orario non validi";
+      }
+    }
+
     return newErrors;
   };
 
-  const handleSubmitOrder = async () => {
+  const handleSubmitOrder = async (e) => {
+    if (e) e.preventDefault(); // blocca il submit nativo
     const validationErrors = validate();
     setErrors(validationErrors);
     setShowTipologiaError(!form.tipologia);
-
+    
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      await submitOrder(form);
-      setConfirmedOrder(true);
-      navigate("/");
+      if(!location.state?.order){
+        await submitOrder(form, location.state?.order?.id);
+        setConfirmedOrder(true);
+        navigate("/");
+      } else {
+        await updateOrder(form, location.state.order.id);
+        setConfirmedOrder(true);
+        navigate("/");
+      }
+      
+
     } catch (err) {
       alert("Errore invio ordine: " + err);
     }
   };
 
-  // Pulsante personalizzato per la data
   const CustomDateInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
     <button
       type="button"
@@ -127,7 +178,6 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     </button>
   ));
 
-  // Pulsante personalizzato per l'orario
   const CustomTimeInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
     <button
       type="button"
@@ -248,13 +298,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         <h1>{user?.name ? `Ciao ${user.name}, effettua un ordine` : "Ospite, effettua un ordine"}</h1>
       </div>
 
-      <Form
-        className="tk-order-summary card-summary"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmitOrder();
-        }}
-      >
+      <Form className="tk-order-summary card-summary" onSubmit={handleSubmitOrder}>
         {!isAuth && (
           <>
             {["nome", "cognome", "telefono"].map((field) => (
@@ -270,7 +314,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         <Form.Group className="summary-row">
           <FaBoxOpen className="icon" />
           <span>Quantità (kg):</span>
-          {renderInputWithTooltip("quantita", "number", "quantità", "quantita")}
+          {renderInputWithTooltip("quantita", "text", "quantità", "quantita")}
         </Form.Group>
 
         <Form.Group className="summary-row">
@@ -297,9 +341,9 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
           {renderTimePickerWithTooltip()}
         </Form.Group>
 
-        <div className="order-buttons">
-          <Button type="submit" variant="primary">Conferma</Button>
-          <Button variant="secondary" onClick={() => navigate("/")}>Annulla</Button>
+        <div className="order-buttons d-flex gap-2 mt-3">
+          <Button type="submit" variant="primary"> Conferma </Button>
+          <Button type="button" variant="secondary" onClick={() => navigate("/")}> Annulla </Button>
         </div>
       </Form>
     </div>

@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button, Modal } from "react-bootstrap";
 
-import { fetchUserOrders } from "../api/API.mjs"; 
+import { fetchUserOrders, deleteUserOrder } from "../api/API.mjs";
 import "../css/OrderList.css";
 
 import MyNavbar from "./MyNavbar";
+import { de } from "date-fns/locale";
 
 function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
 
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  // Caricamento ordini
   useEffect(() => {
     const loadOrders = async () => {
       try {
@@ -30,7 +36,7 @@ function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
 
   // Funzione per calcolare tempo rimanente
   const getTimeRemaining = (deliveryDate, deliveryHour) => {
-    const [day, month, year] = deliveryDate.split("-"); // DD-MM-YYYY
+    const [day, month, year] = deliveryDate.split("-");
     const delivery = new Date(`${year}-${month}-${day}T${deliveryHour}`);
     const now = new Date();
 
@@ -57,6 +63,35 @@ function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
       String(d.getMonth() + 1).padStart(2, "0") +
       "-" +
       d.getFullYear();
+  };
+
+  // Modifica ordine
+  const handleModifyOrder = (order) => {
+    navigate("/make-order", { state: { order } });
+  };
+
+  // Mostra pop-up per cancellazione
+  const handleShowConfirm = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowConfirmPopup(true);
+  };
+
+  // Conferma cancellazione
+  const handleConfirmDelete = () => {
+    if (!selectedOrderId) return;
+
+    deleteUserOrder(selectedOrderId)
+      .then(() => {
+        setOrders(orders.filter(order => order.id !== selectedOrderId));
+        setShowConfirmPopup(false);
+        setSelectedOrderId(null);
+      })
+      .catch(err => {
+        console.error("Errore nella cancellazione dell'ordine:", err);
+      });
+
+    setShowConfirmPopup(false);
+    setSelectedOrderId(null);
   };
 
   return (
@@ -96,16 +131,12 @@ function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
 
                   <div className="order-info">
                     <strong>Richiesto il</strong>
-                    <span>
-                      {formatDate(order.request_date)} - {order.request_hour}
-                    </span>
+                    <span>{formatDate(order.request_date)} - {order.request_hour}</span>
                   </div>
 
                   <div className="order-info">
                     <strong>Consegna</strong>
-                    <span>
-                      {formatDate(order.delivery_date)} - {order.delivery_hour}
-                    </span>
+                    <span>{formatDate(order.delivery_date)} - {order.delivery_hour}</span>
                   </div>
 
                   <div className="order-info">
@@ -113,46 +144,30 @@ function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
                     <span>{order.delivery_address}</span>
                   </div>
 
-                  {/* Tempo mancante */}
                   {!expired && (
                     <div className="order-info">
                       <strong>Tempo alla consegna</strong>
-                      <span>
-                        {days} giorni {hours} ore
-                      </span>
+                      <span>{days} giorni {hours} ore</span>
                     </div>
                   )}
 
-                  {/* Stato come pill moderna */}
                   <span
-                    className={`order-status ${
-                      order.status === "in attesa"
-                        ? "attesa"
-                        : order.status === "in consegna"
+                    className={`order-status ${order.status === "in attesa"
+                      ? "attesa"
+                      : order.status === "in consegna"
                         ? "consegna"
                         : order.status === "completato"
-                        ? "completato"
-                        : "cancellato"
-                    }`}
+                          ? "completato"
+                          : "cancellato"
+                      }`}
                   >
                     {order.status}
                   </span>
 
-                  {/* Pulsanti disponibili solo se >72h */}
                   {totalHours > 72 && !expired && (
                     <div className="order-actions">
-                      <button
-                        className="order-btn edit"
-                        onClick={() => console.log("Modifica ordine", order.id)}
-                      >
-                        Modifica
-                      </button>
-                      <button
-                        className="order-btn delete"
-                        onClick={() => console.log("Cancella ordine", order.id)}
-                      >
-                        Cancella
-                      </button>
+                      <Button className="order-btn edit" onClick={() => handleModifyOrder(order)}>Modifica</Button>
+                      <Button className="order-btn delete" onClick={() => handleShowConfirm(order.id)}>Cancella</Button>
                     </div>
                   )}
                 </div>
@@ -161,6 +176,24 @@ function OrderList({ isAdmin, handleLogoutWrapper, isAuth }) {
           )}
         </div>
       </div>
+
+      {/* Modal di conferma cancellazione */}
+      <Modal show={showConfirmPopup} onHide={() => setShowConfirmPopup(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Cancella ordine</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Sei sicuro di voler cancellare questo ordine?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmPopup(false)}>
+            Annulla
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Conferma
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
