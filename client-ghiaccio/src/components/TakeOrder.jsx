@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from "react";
+import { useState, useEffect, forwardRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
@@ -43,60 +43,61 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
   // Popola il form se viene passato un ordine (modifica)
   useEffect(() => {
-    if (location.state?.order) {
-      const order = location.state.order;
+    const order = location.state?.order;
+    if (!order) return;
 
-      let formattedDate = "";
-      if (order.delivery_date) {
-        let parsedDate;
-        if (order.delivery_date.includes("-")) {
-          const parts = order.delivery_date.split("-");
-          if (parts[0].length === 4) {
-            // formato YYYY-MM-DD
-            parsedDate = new Date(order.delivery_date);
-          } else {
-            // formato DD-MM-YYYY
-            parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-          }
-        } else if (order.delivery_date.includes("/")) {
-          // converto DD/MM/YYYY
-          const parts = order.delivery_date.split("/");
+    let formattedDate = "";
+    if (order.delivery_date) {
+      let parsedDate;
+      if (order.delivery_date.includes("-")) {
+        const parts = order.delivery_date.split("-");
+        if (parts[0].length === 4) {
+          // formato YYYY-MM-DD
+          parsedDate = new Date(order.delivery_date);
+        } else {
+          // formato DD-MM-YYYY
           parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
         }
-        formattedDate = formatDate(parsedDate);
+      } else if (order.delivery_date.includes("/")) {
+        // converto DD/MM/YYYY
+        const parts = order.delivery_date.split("/");
+        parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
       }
-
-      setForm({
-        nome: order.nome || user?.name || "",
-        cognome: order.cognome || user?.surname || "",
-        telefono: order.telefono || user?.phoneNumber || "",
-        quantita: order.quantity ? String(order.quantity) : "",
-        tipologia: order.ice_type || "",
-        indirizzo: order.delivery_address || "",
-        data: formattedDate,
-        orario: order.delivery_hour || "",
-      });
+      formattedDate = formatDate(parsedDate);
     }
+
+    setForm(prev => ({
+      nome: order.nome || user?.name || prev.nome,
+      cognome: order.cognome || user?.surname || prev.cognome,
+      telefono: order.telefono || user?.phoneNumber || prev.telefono,
+      quantita: order.quantity ? String(order.quantity) : prev.quantita,
+      tipologia: order.ice_type || prev.tipologia,
+      indirizzo: order.delivery_address || prev.indirizzo,
+      data: formattedDate || prev.data,
+      orario: order.delivery_hour || prev.orario,
+    }));
   }, [location.state, user]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+    setForm(prev => ({ ...prev, [name]: value }));
+  }, []);
 
-  const handleDateChange = (date) =>
-    setForm((prev) => ({
+  const handleDateChange = useCallback((date) => {
+    setForm(prev => ({
       ...prev,
       data: date ? formatDate(date) : "",
     }));
+  }, []);
 
-  const handleTimeChange = (date) =>
-    setForm((prev) => ({
+  const handleTimeChange = useCallback((date) => {
+    setForm(prev => ({
       ...prev,
       orario: date ? date.toTimeString().slice(0, 5) : "",
     }));
+  }, []);
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const newErrors = {};
 
     if (!isAuth) {
@@ -111,27 +112,22 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       }
     }
 
-    // gestire sempre quantita come stringa
-    if (!String(form.quantita).trim())
+    if (!String(form.quantita).trim()) {
       newErrors.quantita = "La quantità è obbligatoria";
-    else if (isNaN(form.quantita) || Number(form.quantita) <= 0)
+    } else if (isNaN(form.quantita) || Number(form.quantita) <= 0) {
       newErrors.quantita = "La quantità deve essere un numero positivo";
+    }
 
-    if (!form.tipologia.trim())
-      newErrors.tipologia = "Seleziona una tipologia";
+    if (!form.tipologia.trim()) newErrors.tipologia = "Seleziona una tipologia";
 
-    if (!String(form.indirizzo).trim())
-      newErrors.indirizzo = "L’indirizzo è obbligatorio";
+    if (!String(form.indirizzo).trim()) newErrors.indirizzo = "L’indirizzo è obbligatorio";
 
-    if (!form.data.trim())
-      newErrors.data = "La data è obbligatoria";
+    if (!form.data.trim()) newErrors.data = "La data è obbligatoria";
 
-    if (!form.orario.trim())
-      newErrors.orario = "L’orario è obbligatorio";
+    if (!form.orario.trim()) newErrors.orario = "L’orario è obbligatorio";
 
     if (form.data && form.orario) {
       try {
-        // data formattata come "dd-mm-yyyy"
         const [day, month, year] = form.data.split("-").map(Number);
         const [hour, minute] = form.orario.split(":").map(Number);
 
@@ -144,7 +140,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         const chosenDay = new Date(year, month - 1, day);
         chosenDay.setHours(0, 0, 0, 0);
 
-        if ((chosenDay.getTime() === today.getTime()) && (selectedDate.getTime() <= now.getTime())) {
+        if (chosenDay.getTime() === today.getTime() && selectedDate.getTime() <= now.getTime()) {
           newErrors.data = "La data e l’orario devono essere futuri";
         }
       } catch (e) {
@@ -153,10 +149,10 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     }
 
     return newErrors;
-  };
+  }, [form, isAuth]);
 
-  const handleSubmitOrder = async (e) => {
-    if (e) e.preventDefault(); // blocca il submit nativo
+  const handleSubmitOrder = useCallback(async (e) => {
+    if (e) e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
     setShowTipologiaError(!form.tipologia);
@@ -165,34 +161,34 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
     try {
       // normalizza la data prima di salvare
-      const finalForm = {
-        ...form,
-        data: form.data
-          ? formatDate(new Date(form.data.split("-").reverse().join("-")))
-          : "",
-      };
+      const finalForm = { ...form };
+      if (form.data) {
+        // Assumo formato "dd-mm-yyyy"; ricavo nuovo date
+        const parts = form.data.split("-");
+        // invertire ordine se necessario
+        const normalizedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        finalForm.data = formatDate(normalizedDate);
+      }
 
       if (!location.state?.order) {
-        await userSubmitOrder(finalForm, location.state?.order?.id);
-        setConfirmedOrder(true);
-        navigate("/");
+        await userSubmitOrder(finalForm);
       } else {
         await userUpdateOrder(finalForm, location.state.order.id);
-        setConfirmedOrder(true);
-        navigate("/");
       }
+      setConfirmedOrder(true);
+      navigate("/");
     } catch (err) {
       alert("Errore invio ordine: " + err);
     }
-  };
+  }, [form, validate, location.state, navigate, setConfirmedOrder]);
 
-  const formatDate = (dateObj) => {
+  const formatDate = useCallback((dateObj) => {
     if (!(dateObj instanceof Date) || isNaN(dateObj)) return "";
     const day = String(dateObj.getDate()).padStart(2, "0");
     const month = String(dateObj.getMonth() + 1).padStart(2, "0");
     const year = dateObj.getFullYear();
     return `${day}-${month}-${year}`;
-  };
+  }, []);
 
   const CustomDateInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
     <button
@@ -218,17 +214,18 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     </button>
   ));
 
-  const withTooltip = (condition, message, children, key) =>
-    condition ? (
+  const withTooltip = useCallback((condition, message, children, key) => {
+    return condition ? (
       <Tippy key={key} content={message} placement="top" arrow trigger="mouseenter focus">
         <div>{children}</div>
       </Tippy>
     ) : (
       <div key={key}>{children}</div>
     );
+  }, []);
 
-  const renderInputWithTooltip = (name, type, placeholder, key) =>
-    withTooltip(
+  const renderInputWithTooltip = useCallback((name, type, placeholder, key) => {
+    return withTooltip(
       errors[name],
       errors[name],
       <Form.Control
@@ -241,9 +238,10 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       />,
       key
     );
+  }, [errors, form, handleChange, withTooltip]);
 
-  const renderDatePickerWithTooltip = () =>
-    withTooltip(
+  const renderDatePickerWithTooltip = () => {
+    return withTooltip(
       errors.data,
       errors.data,
       <DatePicker
@@ -258,14 +256,19 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       />,
       "date-picker"
     );
+  };
 
   const renderTimePickerWithTooltip = () => {
-    const allowedTimes = [];
-    for (let h = 8; h <= 23; h++) {
-      for (let m = 0; m < 60; m += 30) {
-        allowedTimes.push(setHours(setMinutes(new Date(1970, 0, 1), m), h));
+    // calcola allowedTimes una sola volta
+    const allowedTimes = useMemo(() => {
+      const times = [];
+      for (let h = 8; h <= 23; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          times.push(setHours(setMinutes(new Date(1970, 0, 1), m), h));
+        }
       }
-    }
+      return times;
+    }, []);
 
     return withTooltip(
       errors.orario,
@@ -289,22 +292,21 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     );
   };
 
-  const renderTipologiaButtons = () => {
+  const renderTipologiaButtons = useMemo(() => {
     const options = [
       { key: "consumazioni", label: "Per consumazioni" },
       { key: "raffreddare", label: "Per raffreddare" },
     ];
-
     const hasError = !!errors.tipologia && showTipologiaError;
 
     return (
       <div className="d-flex gap-2 mb-2">
-        {options.map((opt) => {
+        {options.map(opt => {
           const button = (
             <div
               className={`tipologia-btn ${form.tipologia === opt.key ? "selected" : ""} ${hasError ? "is-invalid" : ""}`}
               onClick={() =>
-                setForm((prev) => ({
+                setForm(prev => ({
                   ...prev,
                   tipologia: prev.tipologia === opt.key ? "" : opt.key,
                 }))
@@ -317,7 +319,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         })}
       </div>
     );
-  };
+  }, [form.tipologia, errors.tipologia, showTipologiaError, withTooltip]);
 
   return (
     <div className="tk-page">
@@ -329,7 +331,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       <Form className="tk-order-summary card-summary" onSubmit={handleSubmitOrder}>
         {!isAuth && (
           <>
-            {["nome", "cognome", "telefono"].map((field) => (
+            {["nome", "cognome", "telefono"].map(field => (
               <Form.Group className="summary-row" key={field}>
                 {field === "telefono" ? <FaPhone className="icon" /> : <FaUser className="icon" />}
                 <span>{field.charAt(0).toUpperCase() + field.slice(1)}:</span>
@@ -348,7 +350,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         <Form.Group className="summary-row">
           <FaBoxOpen className="icon" />
           <span>Tipologia:</span>
-          {renderTipologiaButtons()}
+          {renderTipologiaButtons}
         </Form.Group>
 
         <Form.Group className="summary-row">

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Modal, Dropdown, Form } from "react-bootstrap";
+import { Button, Modal, Dropdown, Form, Spinner } from "react-bootstrap";
 
 import { userFetchOrders, userDeleteOrder } from "../api/API.mjs";
 import "../css/OrderList.css";
@@ -8,36 +8,44 @@ import "../css/OrderList.css";
 import MyNavbar from "./MyNavbar";
 
 function OrderList({ handleLogoutWrapper, isAuth }) {
-  const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
 
+  // Stati principali
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Conferma cancellazione
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   // Ordinamento e filtri
   const [sortKey, setSortKey] = useState("request_date");
+  const [sortReverse, setSortReverse] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterIceType, setFilterIceType] = useState("all");
-  const [sortReverse, setSortReverse] = useState(false);
+  const [hideCancelled, setHideCancelled] = useState(true); // Nuovo: mostra/nascondi ordini cancellati
 
-  // Nuovo: mostra o nasconde gli ordini cancellati
-  const [hideCancelled, setHideCancelled] = useState(true);
-
-  // Funzione per caricare gli ordini
-  const loadOrders = async () => {
+  // Caricamento ordini
+  const loadOrders = useCallback(async () => {
     try {
+      setIsLoading(true);
       const res = await userFetchOrders();
       setOrders(res);
     } catch (err) {
       console.error("Errore nel caricamento degli ordini:", err);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  // Carica ordini al caricamento della pagina
+  // Redirect se non autenticato + caricamento iniziale
   useEffect(() => {
-    if (!isAuth) return navigate("/");
-    loadOrders();
-  }, [isAuth, navigate]);
+    if (!isAuth) {
+      navigate("/");
+    } else {
+      loadOrders();
+    }
+  }, [isAuth, navigate, loadOrders]);
 
   // Calcolo tempo rimanente
   const getTimeRemaining = (deliveryDate, deliveryHour) => {
@@ -47,20 +55,37 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
     const diffMs = delivery - now;
     if (diffMs <= 0) return { days: 0, hours: 0, expired: true, totalHours: 0 };
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const days = Math.floor(diffHours / 24);
-    const hours = diffHours % 24;
-    return { days, hours, expired: false, totalHours: diffHours };
+    return {
+      days: Math.floor(diffHours / 24),
+      hours: diffHours % 24,
+      expired: false,
+      totalHours: diffHours,
+    };
   };
 
   // Formatta data in DD-MM-YYYY
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const d = new Date(dateString);
-    if (isNaN(d)) return dateString;
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString("it-IT");
+  };
+
+  // Parsing robusto di una data + ora
+  const parseDateTime = (dateStr, timeStr) => {
+    const [part1, part2, part3] = dateStr.split("-");
+    let year, month, day;
+
+    if (part1.length === 4) {
+      // formato YYYY-MM-DD
+      [year, month, day] = [part1, part2, part3];
+    } else {
+      // formato DD-MM-YYYY
+      [day, month, year] = [part1, part2, part3];
+    }
+
+    const [hour, min] = timeStr.split(":");
+    return new Date(+year, +month - 1, +day, +hour, +min);
   };
 
   // Modifica ordine
@@ -68,7 +93,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
     navigate("/make-order", { state: { order } });
   };
 
-  // Mostra popup di conferma cancellazione
+  // Mostra popup conferma cancellazione
   const handleShowConfirm = (orderId) => {
     setSelectedOrderId(orderId);
     setShowConfirmPopup(true);
@@ -81,62 +106,52 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
       await userDeleteOrder(selectedOrderId);
       setShowConfirmPopup(false);
       setSelectedOrderId(null);
-      await loadOrders(); // ricarica la lista aggiornata
+      await loadOrders(); // ricarica lista aggiornata
     } catch (err) {
       console.error("Errore nella cancellazione dell'ordine:", err);
     }
   };
 
-  // Applica filtro e ordinamento
-  const filteredAndSortedOrders = [...orders]
-    .filter(
-      (order) =>
-        (filterStatus === "all" || order.status === filterStatus) &&
-        (filterIceType === "all" || order.ice_type === filterIceType) &&
-        (!hideCancelled || order.status !== "cancellato")
-    )
-    .sort((a, b) => {
-      let result = 0;
+  // Applica filtri + ordinamento
+  const filteredAndSortedOrders = useMemo(() => {
+    return [...orders]
+      .filter(
+        (order) =>
+          (filterStatus === "all" || order.status === filterStatus) &&
+          (filterIceType === "all" || order.ice_type === filterIceType) &&
+          (!hideCancelled || order.status !== "cancellato")
+      )
+      .sort((a, b) => {
+        let result = 0;
 
-      if (sortKey === "request_date") {
-        // Riconosce sia YYYY-MM-DD che DD-MM-YYYY
-        const parseDate = (dateStr, hourStr) => {
-          const parts = dateStr.split("-");
-          let year, month, day;
+        switch (sortKey) {
+          case "request_date":
+            result = parseDateTime(b.request_date, b.request_hour) - parseDateTime(a.request_date, a.request_hour);
+            break;
+          case "quantity":
+            result = a.quantity - b.quantity;
+            break;
+          case "ice_type":
+            result = a.ice_type.localeCompare(b.ice_type);
+            break;
+          case "address":
+            result = a.delivery_address.localeCompare(b.delivery_address);
+            break;
+          case "status":
+            result = a.status.localeCompare(b.status);
+            break;
+          case "time":
+            const timeA = getTimeRemaining(a.delivery_date, a.delivery_hour);
+            const timeB = getTimeRemaining(b.delivery_date, b.delivery_hour);
+            result = timeA.totalHours - timeB.totalHours;
+            break;
+          default:
+            break;
+        }
 
-          if (parts[0].length === 4) {
-            // formato YYYY-MM-DD
-            [year, month, day] = parts;
-          } else {
-            // formato DD-MM-YYYY
-            [day, month, year] = parts;
-          }
-
-          const [hour, min] = hourStr.split(":");
-          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min));
-        };
-
-        const dateA = parseDate(a.request_date, a.request_hour);
-        const dateB = parseDate(b.request_date, b.request_hour);
-
-        result = dateB - dateA; // più recenti prima
-
-      } else if (sortKey === "quantity") {
-        result = a.quantity - b.quantity;
-      } else if (sortKey === "ice_type") {
-        result = a.ice_type.localeCompare(b.ice_type);
-      } else if (sortKey === "address") {
-        result = a.delivery_address.localeCompare(b.delivery_address);
-      } else if (sortKey === "status") {
-        result = a.status.localeCompare(b.status);
-      } else if (sortKey === "time") {
-        const tA = getTimeRemaining(a.delivery_date, a.delivery_hour);
-        const tB = getTimeRemaining(b.delivery_date, b.delivery_hour);
-        result = tA.totalHours - tB.totalHours;
-      }
-
-      return sortReverse ? -result : result;
-    });
+        return sortReverse ? -result : result;
+      });
+  }, [orders, filterStatus, filterIceType, hideCancelled, sortKey, sortReverse]);
 
   return (
     <>
@@ -149,30 +164,32 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
           <div className="sort-container">
             <Dropdown className="custom-dropdown">
               <Dropdown.Toggle className="dropdown-toggle">
-                {sortKey === "request_date"
-                  ? "Recenti"
-                  : sortKey === "quantity"
-                    ? "Quantità"
-                    : sortKey === "ice_type"
-                      ? "Tipo di ghiaccio"
-                      : sortKey === "address"
-                        ? "Indirizzo"
-                        : sortKey === "time"
-                          ? "Tempo di consegna"
-                          : "Stato"}
+                {{
+                  request_date: "Recenti",
+                  quantity: "Quantità",
+                  ice_type: "Tipo di ghiaccio",
+                  address: "Indirizzo",
+                  time: "Tempo di consegna",
+                  status: "Stato",
+                }[sortKey]}
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setSortKey("request_date")}>Recenti</Dropdown.Item>
-                <Dropdown.Item onClick={() => setSortKey("quantity")}>Quantità</Dropdown.Item>
-                <Dropdown.Item onClick={() => setSortKey("ice_type")}>Tipo di ghiaccio</Dropdown.Item>
-                <Dropdown.Item onClick={() => setSortKey("address")}>Indirizzo</Dropdown.Item>
-                <Dropdown.Item onClick={() => setSortKey("time")}>Tempo di consegna</Dropdown.Item>
-                <Dropdown.Item onClick={() => setSortKey("status")}>Stato</Dropdown.Item>
+                {["request_date", "quantity", "ice_type", "address", "time", "status"].map((key) => (
+                  <Dropdown.Item key={key} onClick={() => setSortKey(key)}>
+                    {{
+                      request_date: "Recenti",
+                      quantity: "Quantità",
+                      ice_type: "Tipo di ghiaccio",
+                      address: "Indirizzo",
+                      time: "Tempo di consegna",
+                      status: "Stato",
+                    }[key]}
+                  </Dropdown.Item>
+                ))}
               </Dropdown.Menu>
             </Dropdown>
 
-            {/* Pulsante inverti ordine */}
-            <Button className="invert-btn" onClick={() => setSortReverse(!sortReverse)}>
+            <Button className="invert-btn" onClick={() => setSortReverse((prev) => !prev)}>
               {sortReverse ? "↓" : "↑"}
             </Button>
           </div>
@@ -180,22 +197,14 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
           <h3>Filtra per stato</h3>
           <Dropdown className="custom-dropdown">
             <Dropdown.Toggle className="dropdown-toggle">
-              {filterStatus === "all"
-                ? "Tutti"
-                : filterStatus === "in attesa"
-                  ? "In attesa"
-                  : filterStatus === "in consegna"
-                    ? "In consegna"
-                    : filterStatus === "completato"
-                      ? "Completato"
-                      : "Cancellato"}
+              {filterStatus === "all" ? "Tutti" : filterStatus}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setFilterStatus("all")}>Tutti</Dropdown.Item>
-              <Dropdown.Item onClick={() => setFilterStatus("in attesa")}>In attesa</Dropdown.Item>
-              <Dropdown.Item onClick={() => setFilterStatus("in consegna")}>In consegna</Dropdown.Item>
-              <Dropdown.Item onClick={() => setFilterStatus("completato")}>Completato</Dropdown.Item>
-              <Dropdown.Item onClick={() => setFilterStatus("cancellato")}>Cancellato</Dropdown.Item>
+              {["all", "in attesa", "in consegna", "completato", "cancellato"].map((status) => (
+                <Dropdown.Item key={status} onClick={() => setFilterStatus(status)}>
+                  {status === "all" ? "Tutti" : status}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
 
@@ -214,12 +223,11 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
             </Dropdown.Menu>
           </Dropdown>
 
-          {/* Mostra/Nascondi ordini cancellati */}
           <Form.Check
             type="checkbox"
             label="Mostra gli ordini cancellati"
             checked={!hideCancelled}
-            onChange={() => setHideCancelled(!hideCancelled)}
+            onChange={() => setHideCancelled((prev) => !prev)}
             className="mt-3"
           />
         </aside>
@@ -229,107 +237,66 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
           <div className="orderlist-header">
             <h1>I tuoi Ordini</h1>
             <p className="orderlist-info">
-              <strong>Attenzione:</strong> Gli ordini si possono modificare o
-              cancellare solo entro 72h prima della consegna.
+              <strong>Attenzione:</strong> Gli ordini si possono modificare o cancellare solo entro 72h prima della
+              consegna.
             </p>
           </div>
 
-          <div className="orderlist-cards">
-            {filteredAndSortedOrders.length === 0 ? (
-              <p className="no-orders">Nessun ordine disponibile</p>
-            ) : (
-              filteredAndSortedOrders.map((order) => {
-                const { days, hours, expired, totalHours } = getTimeRemaining(
-                  order.delivery_date,
-                  order.delivery_hour
-                );
+          {isLoading ? (
+            <div className="loading">
+              <Spinner animation="border" />
+            </div>
+          ) : filteredAndSortedOrders.length === 0 ? (
+            <p className="no-orders">Nessun ordine disponibile</p>
+          ) : (
+            <div className="orderlist-cards">
+              {filteredAndSortedOrders.map((order) => {
+                const { days, hours, expired, totalHours } = getTimeRemaining(order.delivery_date, order.delivery_hour);
 
                 return (
                   <div key={order.id} className="order-card">
                     <h3>Ordine #{order.id}</h3>
 
-                    <div className="order-info">
-                      <strong>Quantità</strong>
-                      <span>{order.quantity} kg</span>
-                    </div>
-
-                    <div className="order-info">
-                      <strong>Tipo ghiaccio</strong>
-                      <span>{order.ice_type}</span>
-                    </div>
-
-                    <div className="order-info">
-                      <strong>Richiesto il</strong>
-                      <span>
-                        {formatDate(order.request_date)} - {order.request_hour}
-                      </span>
-                    </div>
-
-                    <div className="order-info">
-                      <strong>Consegna</strong>
-                      <span>
-                        {formatDate(order.delivery_date)} - {order.delivery_hour}
-                      </span>
-                    </div>
-
-                    <div className="order-info">
-                      <strong>Indirizzo</strong>
-                      <span>{order.delivery_address}</span>
-                    </div>
+                    <div className="order-info"><strong>Quantità</strong><span>{order.quantity} kg</span></div>
+                    <div className="order-info"><strong>Tipo ghiaccio</strong><span>{order.ice_type}</span></div>
+                    <div className="order-info"><strong>Richiesto il</strong><span>{formatDate(order.request_date)} - {order.request_hour}</span></div>
+                    <div className="order-info"><strong>Consegna</strong><span>{formatDate(order.delivery_date)} - {order.delivery_hour}</span></div>
+                    <div className="order-info"><strong>Indirizzo</strong><span>{order.delivery_address}</span></div>
 
                     {!expired && (
                       <div className="order-info">
                         <strong>Tempo alla consegna</strong>
-                        <span>
-                          {days} giorni {hours} ore
-                        </span>
+                        <span>{days} giorni {hours} ore</span>
                       </div>
                     )}
 
-                    <span
-                      className={`order-status ${order.status === "in attesa"
-                        ? "attesa"
-                        : order.status === "in consegna"
-                          ? "consegna"
-                          : order.status === "completato"
-                            ? "completato"
-                            : "cancellato"
-                        }`}
-                    >
+                    <span className={`order-status ${order.status.replace(" ", "-")}`}>
                       {order.status}
                     </span>
 
                     {totalHours > 72 && !expired && order.status === "in attesa" && (
                       <div className="order-actions">
-                        <Button className="order-btn edit" onClick={() => handleModifyOrder(order)}>
-                          Modifica
-                        </Button>
-                        <Button className="order-btn delete" onClick={() => handleShowConfirm(order.id)}>
-                          Cancella
-                        </Button>
+                        <Button className="order-btn edit" onClick={() => handleModifyOrder(order)}>Modifica</Button>
+                        <Button className="order-btn delete" onClick={() => handleShowConfirm(order.id)}>Cancella</Button>
                       </div>
                     )}
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Modal di conferma cancellazione */}
+      {/* Modal conferma cancellazione */}
       <Modal show={showConfirmPopup} onHide={() => setShowConfirmPopup(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Cancella ordine</Modal.Title>
         </Modal.Header>
         <Modal.Body>Sei sicuro di voler cancellare questo ordine?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirmPopup(false)}>
-            Annulla
-          </Button>
-          <Button variant="danger" onClick={handleConfirmDelete}>
-            Conferma
-          </Button>
+          <Button variant="secondary" onClick={() => setShowConfirmPopup(false)}>Annulla</Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>Conferma</Button>
         </Modal.Footer>
       </Modal>
     </>

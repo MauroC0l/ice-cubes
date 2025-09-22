@@ -2,7 +2,7 @@
 import './css/App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import Home from "./components/Home.jsx";
@@ -26,10 +26,10 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState(false);
 
-  const makeAuth = (value) => setIsAuth(value);
+  const makeAuth = useCallback((value) => setIsAuth(value), []);
 
   // Logout wrapper
-  const handleLogoutWrapper = async () => {
+  const handleLogoutWrapper = useCallback(async () => {
     try {
       await handleLogout();
       navigate("/", { replace: true });
@@ -39,7 +39,7 @@ function App() {
     } catch (err) {
       console.error("Errore durante il logout", err);
     }
-  };
+  }, [navigate]);
 
   // Check auth on mount
   useEffect(() => {
@@ -47,6 +47,7 @@ function App() {
       .then(({ isAuth, user }) => {
         setIsAuth(isAuth);
         setUser(user);
+        setIsAdmin(user?.role === "admin"); // <-- admin check qui
         setServerStatus(true);
       })
       .catch(err => {
@@ -56,21 +57,23 @@ function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div className="auth-loading-container">
-      <div className="spinner" role="status" aria-label="Loading spinner" />
-      Accesso in corso...
-    </div>
-  );
-
-  if (!serverStatus) return <ServerDownDisplay />;
-
-  const currentUser = user ? {
+  const currentUser = useMemo(() => user ? {
     name: user.name,
     surname: user.surname,
     phoneNumber: user.phoneNumber,
     email: user.email
-  } : null;
+  } : null, [user]);
+
+  if (loading) {
+    return (
+      <div className="auth-loading-container">
+        <div className="spinner" role="status" aria-label="Loading spinner" />
+        Accesso in corso...
+      </div>
+    );
+  }
+
+  if (!serverStatus) return <ServerDownDisplay />;
 
   return (
     <Routes>
@@ -87,36 +90,37 @@ function App() {
           />
         }
       />
-
       <Route
         path="/login"
         element={
-          isAuth
-            ? <Navigate to="/" replace />
-            : <Login
-                setIsAdmin={setIsAdmin}
-                logo={logo}
-                makeAuth={makeAuth}
-                setUser={setUser}
-                serverStatus={serverStatus}
-                setServerStatus={setServerStatus}
-              />
+          isAuth ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Login
+              setIsAdmin={setIsAdmin}
+              logo={logo}
+              makeAuth={makeAuth}
+              setUser={setUser}
+              serverStatus={serverStatus}
+              setServerStatus={setServerStatus}
+            />
+          )
         }
       />
-
       <Route
         path="/register"
         element={
-          isAuth
-            ? <Navigate to="/" replace />
-            : <Register
-                logo={logo}
-                makeAuth={makeAuth}
-                setUser={setUser}
-              />
+          isAuth ? (
+            <Navigate to="/" replace />
+          ) : (
+            <Register
+              logo={logo}
+              makeAuth={makeAuth}
+              setUser={setUser}
+            />
+          )
         }
       />
-
       <Route
         path="/make-order"
         element={
@@ -129,7 +133,6 @@ function App() {
           />
         }
       />
-
       <Route
         path="/my-orders"
         element={
@@ -140,7 +143,6 @@ function App() {
           />
         }
       />
-
       <Route
         path="*"
         element={

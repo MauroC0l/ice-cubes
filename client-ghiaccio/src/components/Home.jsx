@@ -1,67 +1,81 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal } from "react-bootstrap";
+
 import MyNavbar from "./MyNavbar";
 import { fetchFreezers, fetchOrders } from "../api/API.mjs";
+
 import "../css/Home.css";
 
-function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setConfirmedOrder }) {
+function Home({
+  handleLogoutWrapper,
+  name,
+  isAuth,
+  isAdmin,
+  confirmedOrder,
+  setConfirmedOrder,
+}) {
   const [freezers, setFreezers] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
-  const [showAuthPopup, setShowAuthPopup] = useState(false); // stato del popup
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+
   const navigate = useNavigate();
 
   // Caricamento dati per admin
   useEffect(() => {
     const loadData = async () => {
+      if (!isAdmin) return;
+
       try {
-        if (isAdmin) {
-          const [fetchedFreezers, fetchedOrders] = await Promise.all([
-            fetchFreezers(),
-            fetchOrders()
-          ]);
-          setFreezers(fetchedFreezers);
-          setOrders(fetchedOrders);
-        }
+        const [fetchedFreezers, fetchedOrders] = await Promise.all([
+          fetchFreezers(),
+          fetchOrders(),
+        ]);
+        setFreezers(fetchedFreezers);
+        setOrders(fetchedOrders);
       } catch (err) {
         console.error("Errore caricamento dati:", err);
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
   }, [isAdmin]);
 
   // Mostra messaggio di conferma ordine
   useEffect(() => {
-    if (confirmedOrder) {
-      setShowMessage(true);
-      const timer = setTimeout(() => setShowMessage(false), 1000);
-      setConfirmedOrder(false);
-      return () => clearTimeout(timer);
-    }
+    if (!confirmedOrder) return;
+
+    setShowMessage(true);
+    const timer = setTimeout(() => setShowMessage(false), 1000);
+    setConfirmedOrder(false);
+
+    return () => clearTimeout(timer);
   }, [confirmedOrder, setConfirmedOrder]);
 
   // Riepilogo ghiaccio disponibile
-  const iceSummary = freezers.reduce(
-    (acc, f) => {
-      acc.total_kg += f.n_kg;
-      acc.total_bags += f.n_bags;
-      acc.total_capacity += f.n_kg_max;
-      return acc;
-    },
-    { total_kg: 0, total_bags: 0, total_capacity: 0 }
-  );
+  const iceSummary = useMemo(() => {
+    return freezers.reduce(
+      (acc, f) => {
+        acc.total_kg += f.n_kg;
+        acc.total_bags += f.n_bags;
+        acc.total_capacity += f.n_kg_max;
+        return acc;
+      },
+      { total_kg: 0, total_bags: 0, total_capacity: 0 }
+    );
+  }, [freezers]);
 
-  const handleShowOrderList = () => {
+  const handleShowOrderList = useCallback(() => {
     if (isAuth) {
       navigate("/my-orders");
     } else {
       setShowAuthPopup(true); // mostra popup se non loggato
     }
-  };
+  }, [isAuth, navigate]);
 
   if (loading) return <div className="home-page">Loading...</div>;
 
@@ -71,13 +85,13 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
 
       <div className="home-header">
         <h1>Benvenuto {name || "su Ice Cubes"}</h1>
-        <p>Il tuo ruolo è <strong>{isAdmin ? "admin" : "customer"}</strong></p>
+        <p>
+          Il tuo ruolo è <strong>{isAdmin ? "admin" : "customer"}</strong>
+        </p>
       </div>
 
       {showMessage && (
-        <div className="toast-message">
-          Il tuo ordine è stato confermato!
-        </div>
+        <div className="toast-message">Il tuo ordine è stato confermato!</div>
       )}
 
       {isAdmin ? (
@@ -90,9 +104,12 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
             <p>Conclusi: {orders.filter(o => o.status === "completed").length}</p>
             <p>Cancellati: {orders.filter(o => o.status === "deleted").length}</p>
           </div>
+
           <div className="home-card">
             <h3>❄️ Ghiaccio</h3>
-            <p>Disponibile: {iceSummary.total_kg}/{iceSummary.total_capacity} kg</p>
+            <p>
+              Disponibile: {iceSummary.total_kg}/{iceSummary.total_capacity} kg
+            </p>
             <p>Sacchi: {iceSummary.total_bags}</p>
           </div>
         </div>
@@ -104,6 +121,7 @@ function Home({ handleLogoutWrapper, name, isAuth, isAdmin, confirmedOrder, setC
               Effettua un ordine
             </Button>
           </div>
+
           <div className="home-card">
             <h3>Guarda i miei ordini</h3>
             <Button onClick={handleShowOrderList} variant="primary">
