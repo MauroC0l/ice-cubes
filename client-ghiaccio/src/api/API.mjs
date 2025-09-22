@@ -44,7 +44,7 @@ export const handleLogout = () =>
 
 // ========== ORDERS ==========
 // Submit order
-export const submitOrder = (orderData) =>
+export const userSubmitOrder = (orderData) =>
   fetch(`${API_BASE}/submit-order`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,7 @@ export const submitOrder = (orderData) =>
   }).then(() => { return; });
 
 // Update order
-export const updateOrder = (orderData, orderId) => {
+export const userUpdateOrder = (orderData, orderId) => {
   fetch(`${API_BASE}/update-order/${orderId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -63,7 +63,7 @@ export const updateOrder = (orderData, orderId) => {
 };
 
 // Retrieve user orders
-export const fetchUserOrders = () =>
+export const userFetchOrders = () =>
   fetch(`${API_BASE}/orders`, { 
     method: 'GET', 
     credentials: 'include' 
@@ -75,7 +75,7 @@ export const fetchUserOrders = () =>
     });
 
 // Put order in "DELETE" status
-export const deleteUserOrder = (orderId) => {
+export const userDeleteOrder = (orderId) => {
   return fetch(`${API_BASE}/delete-order/${orderId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

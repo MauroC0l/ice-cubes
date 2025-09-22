@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal, Dropdown, Form } from "react-bootstrap";
 
-import { fetchUserOrders, deleteUserOrder } from "../api/API.mjs";
+import { userFetchOrders, userDeleteOrder } from "../api/API.mjs";
 import "../css/OrderList.css";
 
 import MyNavbar from "./MyNavbar";
@@ -26,7 +26,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
   // Funzione per caricare gli ordini
   const loadOrders = async () => {
     try {
-      const res = await fetchUserOrders();
+      const res = await userFetchOrders();
       setOrders(res);
     } catch (err) {
       console.error("Errore nel caricamento degli ordini:", err);
@@ -78,7 +78,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
   const handleConfirmDelete = async () => {
     if (!selectedOrderId) return;
     try {
-      await deleteUserOrder(selectedOrderId);
+      await userDeleteOrder(selectedOrderId);
       setShowConfirmPopup(false);
       setSelectedOrderId(null);
       await loadOrders(); // ricarica la lista aggiornata

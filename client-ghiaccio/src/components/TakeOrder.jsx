@@ -19,7 +19,7 @@ import {
 
 import MyNavbar from "./MyNavbar";
 import "../css/TakeOrder.css";
-import { submitOrder, updateOrder } from "../api/API.mjs";
+import { userSubmitOrder, userUpdateOrder } from "../api/API.mjs";
 import { setHours, setMinutes } from "date-fns";
 import { it } from "date-fns/locale";
 
@@ -173,11 +173,11 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       };
 
       if (!location.state?.order) {
-        await submitOrder(finalForm, location.state?.order?.id);
+        await userSubmitOrder(finalForm, location.state?.order?.id);
         setConfirmedOrder(true);
         navigate("/");
       } else {
-        await updateOrder(finalForm, location.state.order.id);
+        await userUpdateOrder(finalForm, location.state.order.id);
         setConfirmedOrder(true);
         navigate("/");
       }
