@@ -306,8 +306,8 @@
 }
 
 .order-status.consegna {
-  background: linear-gradient(135deg, #cce5ff, #99ccff);
-  color: #004085;
+  background: linear-gradient(135deg, #e0ccff, #b399ff);
+  color: #4b0082; 
 }
 
 .order-status.completato {

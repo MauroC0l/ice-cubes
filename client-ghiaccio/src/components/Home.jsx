@@ -93,7 +93,7 @@ function Home({
         <h3>📦 Ordini</h3>
         <p>Totali: {orders.length}</p>
         <p>In attesa: {orders.filter(o => o.status === "in attesa").length}</p>
-        <p>In carico: {orders.filter(o => o.status === "in carico").length}</p>
+        <p>In carico: {orders.filter(o => o.status === "in consegna").length}</p>
         <p>Conclusi: {orders.filter(o => o.status === "completato").length}</p>
         <p>Cancellati: {orders.filter(o => o.status === "cancellato").length}</p>
       </div>
