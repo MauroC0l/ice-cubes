@@ -3,12 +3,12 @@
 IMPORTANTI
 - Inserire la modifica del profilo
 - Visuale dell'admin
-- Pulsanti cancella ordine
 
 MEDIE
 - Far si che l'admin possa inserire degli ordini
 - Far fare al server, periodicamente una funzione per controllare se data consegna è passata e cambiare lo stato dell'ordine
-
+- state "loading" funziona?
+- 
 
 INUTILI
 
@@ -24,3 +24,4 @@ FATTE:
 - Inserire la modifica degli ordini (entro tot ore dall'invio)
 - Gesire ordini e login/LOGOUT
 - sovrapporre correttamente il colore di intestazione nei menù a tendina nella selezione della data e dell'ora in TakeOrder
+- Pulsanti cancella ordine

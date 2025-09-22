@@ -17,7 +17,7 @@ function Home({
 }) {
   const [freezers, setFreezers] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showMessage, setShowMessage] = useState(false);
   const [showAuthPopup, setShowAuthPopup] = useState(false);
 
@@ -26,7 +26,10 @@ function Home({
   // Caricamento dati per admin
   useEffect(() => {
     const loadData = async () => {
-      if (!isAdmin) return;
+      if (!isAdmin) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const [fetchedFreezers, fetchedOrders] = await Promise.all([
@@ -77,7 +80,35 @@ function Home({
     }
   }, [isAuth, navigate]);
 
+
+
   if (loading) return <div className="home-page">Loading...</div>;
+
+
+
+  // Componente separato per l'home admin
+  const AdminHome = ({ orders, iceSummary }) => (
+    <div className="home-content">
+      <div className="home-card">
+        <h3>📦 Ordini</h3>
+        <p>Totali: {orders.length}</p>
+        <p>In attesa: {orders.filter(o => o.status === "in attesa").length}</p>
+        <p>In carico: {orders.filter(o => o.status === "in carico").length}</p>
+        <p>Conclusi: {orders.filter(o => o.status === "completato").length}</p>
+        <p>Cancellati: {orders.filter(o => o.status === "cancellato").length}</p>
+      </div>
+
+      <div className="home-card">
+        <h3>❄️ Ghiaccio</h3>
+        <p>
+          Disponibile: {iceSummary.total_kg}/{iceSummary.total_capacity} kg
+        </p>
+        <p>Sacchi: {iceSummary.total_bags}</p>
+      </div>
+    </div>
+  );
+
+
 
   return (
     <div className="home-page">
@@ -95,25 +126,9 @@ function Home({
       )}
 
       {isAdmin ? (
-        <div className="home-content">
-          <div className="home-card">
-            <h3>📦 Ordini</h3>
-            <p>Totali: {orders.length}</p>
-            <p>In attesa: {orders.filter(o => o.status === "pending").length}</p>
-            <p>In carico: {orders.filter(o => o.status === "in_charge").length}</p>
-            <p>Conclusi: {orders.filter(o => o.status === "completed").length}</p>
-            <p>Cancellati: {orders.filter(o => o.status === "deleted").length}</p>
-          </div>
-
-          <div className="home-card">
-            <h3>❄️ Ghiaccio</h3>
-            <p>
-              Disponibile: {iceSummary.total_kg}/{iceSummary.total_capacity} kg
-            </p>
-            <p>Sacchi: {iceSummary.total_bags}</p>
-          </div>
-        </div>
+        <AdminHome orders={orders} iceSummary={iceSummary} />
       ) : (
+        {/* Customer Home */},
         <div className="home-content">
           <div className="home-card">
             <h3>Effettua un ordine</h3>

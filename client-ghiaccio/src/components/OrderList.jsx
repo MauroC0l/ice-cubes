@@ -270,7 +270,16 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
                       </div>
                     )}
 
-                    <span className={`order-status ${order.status.replace(" ", "-")}`}>
+                     <span
+                      className={`order-status ${order.status === "in attesa"
+                        ? "attesa"
+                        : order.status === "in consegna"
+                          ? "consegna"
+                          : order.status === "completato"
+                            ? "completato"
+                            : "cancellato"
+                        }`}
+                    >
                       {order.status}
                     </span>
 
