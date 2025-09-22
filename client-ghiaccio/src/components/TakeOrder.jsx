@@ -45,14 +45,32 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   useEffect(() => {
     if (location.state?.order) {
       const order = location.state.order;
+
+      let formattedDate = "";
+      if (order.delivery_date) {
+        // se è già "YYYY-MM-DD" o "YYYY/MM/DD", lo parso e lo riconverto
+        const parts = order.delivery_date.includes("-")
+          ? order.delivery_date.split("-")
+          : order.delivery_date.split("/");
+
+        // Se in formato ISO (YYYY-MM-DD)
+        if (parts[0].length === 4) {
+          formattedDate = formatDate(new Date(order.delivery_date));
+        }
+        // Se già in formato DD-MM-YYYY o DD/MM/YYYY lo lascio così
+        else {
+          formattedDate = order.delivery_date.replace(/\//g, "-");
+        }
+      }
+
       setForm({
         nome: order.nome || user?.name || "",
         cognome: order.cognome || user?.surname || "",
         telefono: order.telefono || user?.phoneNumber || "",
-        quantita: order.quantity ? String(order.quantity) : "", // 🔧 normalizzazione a stringa
+        quantita: order.quantity ? String(order.quantity) : "",
         tipologia: order.ice_type || "",
         indirizzo: order.delivery_address || "",
-        data: order.delivery_date || "",
+        data: formattedDate,
         orario: order.delivery_hour || "",
       });
     }
@@ -66,13 +84,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   const handleDateChange = (date) =>
     setForm((prev) => ({
       ...prev,
-      data: date
-        ? String(date.getDate()).padStart(2, "0") +
-          "-" +
-          String(date.getMonth() + 1).padStart(2, "0") +
-          "-" +
-          date.getFullYear()
-        : "",
+      data: date ? formatDate(date) : "",
     }));
 
   const handleTimeChange = (date) =>
@@ -132,7 +144,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
         if ((chosenDay.getTime() == today.getTime()) && (selectedDate.getTime() <= now.getTime())) {
           newErrors.data = "La data e l’orario devono essere futuri";
-        } 
+        }
       } catch (e) {
         newErrors.data = "Data o orario non validi";
       }
@@ -146,11 +158,11 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
     const validationErrors = validate();
     setErrors(validationErrors);
     setShowTipologiaError(!form.tipologia);
-    
+
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      if(!location.state?.order){
+      if (!location.state?.order) {
         await submitOrder(form, location.state?.order?.id);
         setConfirmedOrder(true);
         navigate("/");
@@ -159,11 +171,19 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
         setConfirmedOrder(true);
         navigate("/");
       }
-      
+
 
     } catch (err) {
       alert("Errore invio ordine: " + err);
     }
+  };
+
+  const formatDate = (dateObj) => {
+    if (!(dateObj instanceof Date) || isNaN(dateObj)) return "";
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   const CustomDateInput = forwardRef(({ value, onClick, placeholder, hasError }, ref) => (

@@ -50,15 +50,19 @@
 }
 
 /* ----- Pulsanti Sidebar ----- */
-.orderlist-sidebar button {
-  width: 100%;
-  padding: clamp(0.45rem, 0.9vw, 0.65rem) clamp(0.6rem, 1.2vw, 0.8rem);
-  font-size: clamp(0.85rem, 0.95vw, 1rem);
+.orderlist-sidebar button:not(.invert-btn) {
+  width: 200px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #22AED1, #016FB9);
   border: none;
-  border-radius: clamp(0.6rem, 1vw, 0.9rem);
+  border-radius: 0.8rem;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(1, 111, 185, 0.2);
   transition: all 0.25s ease-in-out;
@@ -126,10 +130,11 @@
 
 /* ----- Pulsante Inverti ordine ----- */
 .invert-btn {
-  width: clamp(0.1rem, 0.5vw, 0.5rem);
-  height: clamp(2rem, 3vw, 2.4rem);
+  width: 38px;   /* più piccolo */
+  height: 38px;
   padding: 0;
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  margin-left: auto; /* si attacca a destra dentro .sort-container */
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, #22AED1, #016FB9);
@@ -151,9 +156,13 @@
 
 /* ----- Contenuto principale ----- */
 .orderlist-content {
-  flex: 1;
+  flex: 1; /* già presente */
   padding: clamp(1rem, 2vw, 2rem);
   overflow-y: auto;
+
+  /* Flex per centrare .no-orders verticalmente e occupare tutto lo spazio */
+  display: flex;
+  flex-direction: column;
 }
 
 /* ----- Header ----- */
@@ -189,13 +198,14 @@
   font-size: clamp(1rem, 1.2vw, 1.4rem);
   font-weight: 500;
   color: #6D8EA0;
-  margin-top: 4vh;
+
+  margin-top: 50px;
 }
 
 /* ----- Cards wrapper ----- */
 .orderlist-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 35vw, 420px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 25%, 300px), 50vh));
   gap: clamp(1rem, 2.2vw, 2rem);
   max-width: 85vw;
   margin: 0 auto;
@@ -396,4 +406,40 @@ body::-webkit-scrollbar-thumb:hover, .orderlist-page::-webkit-scrollbar-thumb:ho
 body, .orderlist-page {
   scrollbar-width: thin;
   scrollbar-color: rgba(1, 111, 185, 0.3) rgba(0, 0, 0, 0.03);
+}
+
+/* ----- Pulsanti del Modal ----- */
+.modal-footer .btn {
+  border-radius: 1rem;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  font-size: 1.05rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Pulsante Annulla (grigio) */
+.modal-footer .btn-secondary {
+  background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%);
+  color: #495057;
+  border: none;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: linear-gradient(90deg, #dee2e6 0%, #ced4da 100%);
+  color: #212529;
+  transform: scale(1.05);
+}
+
+/* Pulsante Conferma (rosso) */
+.modal-footer .btn-danger {
+  background: linear-gradient(90deg, #dc3545 0%, #a71d2a 100%);
+  color: #fff;
+  border: none;
+}
+
+.modal-footer .btn-danger:hover {
+  background: linear-gradient(90deg, #a71d2a 0%, #dc3545 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(220,53,69,0.3);
 }

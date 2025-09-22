@@ -74,14 +74,14 @@ export const fetchUserOrders = () =>
       else throw data.message || "Failed to fetch user orders";
     });
 
-// Delete user order
+// Put order in "DELETE" status
 export const deleteUserOrder = (orderId) => {
   return fetch(`${API_BASE}/delete-order/${orderId}`, {
     method: 'PUT',
-    credentials: 'include'
-  }).then(() => { return; });
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  }).then(res => res.json());
 };
-
 
 
 

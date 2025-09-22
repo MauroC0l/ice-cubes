@@ -50,7 +50,6 @@
 }
 
 .login-card:hover {
-  transform: translateY(-0.6vh) scale(1.02);
   box-shadow: 0 1.4vw 3.4vw rgba(1, 111, 185, 0.25);
 }
 

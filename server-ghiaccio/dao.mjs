@@ -112,6 +112,15 @@ export const getAllOrders = async () => {
   return rows; // semplice array, non mapping inutile
 };
 
+export const getOrderById = (id) =>
+  openDb().then(db => new Promise((resolve, reject) => {
+    db.get('SELECT * FROM orders WHERE id = ?', [id], (err, row) => {
+      closeDb(db);
+      if (err) return reject(err);
+      resolve(row || null);
+    });
+  }));
+
 export const getOrdersByUserId = (userId) =>
   openDb().then(db => new Promise((resolve, reject) => {
     db.all('SELECT * FROM orders WHERE user_id = ?', [userId], (err, rows) => {

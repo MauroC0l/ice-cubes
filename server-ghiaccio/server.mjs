@@ -162,7 +162,10 @@ app.post('/api/submit-order', async (req, res) => {
   try {
     // Ottieni la data/ora attuale
     const now = new Date();
-    const request_date = now.toLocaleDateString("it-IT"); // es: 12/09/2025
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Mese da 0 a 11
+    const year = now.getFullYear();
+    const request_date = `${day}-${month}-${year}`; // formato DD-MM-YYYY
     const request_hour = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); // es: 14:30
 
     // Estrai i dati dal body
@@ -201,6 +204,7 @@ app.post('/api/submit-order', async (req, res) => {
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 
 // Get all orders for a specific user
 app.get('/api/orders', isAuthenticated, async (req, res) => {
@@ -265,44 +269,33 @@ app.put('/api/update-order/:orderId', isAuthenticated, async (req, res) => {
 // Delete user order
 app.put('/api/delete-order/:orderId', isAuthenticated, async (req, res) => {
   try {
-    // Ottieni la data/ora attuale
-    const now = new Date();
-    const request_date = now.toLocaleDateString("it-IT"); // es: 12/09/2025
-    const request_hour = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); // es: 14:30
-
-    // Estrai i dati dal body
-    const { quantita, tipologia, indirizzo, data, orario, nome, cognome, telefono } = req.body;
-
-    // Recupera utente dal DB
-    let user = await dao.getUserByPhoneNumber(telefono); 
-
-    // Determina user_id
-    let user_id;
-    if (user) {
-      user_id = user.id;
-    } else {
-      user_id = telefono; // fallback: numero di telefono come identificativo
-    }
-
-    // Crea l’oggetto ordine coerente con il tuo schema
-    const order = {
-      quantity: quantita,
-      ice_type: tipologia,
-      delivery_address: indirizzo,
-      delivery_date: data,
-      delivery_hour: orario,
-      request_date,
-      request_hour,
-      status: "cancellato",
-      user_id
-    };
-
     const orderId = req.params.orderId;
 
-    // Salva l’ordine nel DB
-    await dao.updateOrder(order, orderId);
+    // Ottieni la data/ora attuale per loggare la cancellazione
+    const now = new Date();
+    const request_date = now.toLocaleDateString("it-IT"); // es: 22/09/2025
+    const request_hour = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); // es: 14:30
 
-    return res.json({ success: true, order });
+    // Recupera l'ordine esistente dal DB
+    const existingOrder = await dao.getOrderById(orderId);
+    if (!existingOrder) {
+      return res.status(404).json({ success: false, message: "Ordine non trovato" });
+    }
+
+    // Aggiorna solo lo status e la data/ora della richiesta
+    const updatedOrder = {
+      ...existingOrder, // mantieni tutti i campi esistenti
+      status: "cancellato",
+      request_date,
+      request_hour
+    };
+
+    // Salva l’ordine aggiornato nel DB
+    await dao.updateOrder(updatedOrder, orderId);
+
+    console.log("\n\nORDINE CANCELLATO:", orderId);
+
+    return res.json({ success: true, order: updatedOrder });
   } catch (err) {
     console.error("Error deleting order:", err);
     return res.status(500).json({ success: false, message: "Internal server error" });
