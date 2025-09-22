@@ -21,7 +21,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
   const [sortReverse, setSortReverse] = useState(false);
 
   // Nuovo: mostra o nasconde gli ordini cancellati
-  const [hideCancelled, setHideCancelled] = useState(false);
+  const [hideCancelled, setHideCancelled] = useState(true);
 
   // Funzione per caricare gli ordini
   const loadOrders = async () => {
@@ -214,7 +214,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
             </Dropdown.Menu>
           </Dropdown>
 
-          {/* Nuova checkbox: Mostra/Nascondi ordini cancellati */}
+          {/* Mostra/Nascondi ordini cancellati */}
           <Form.Check
             type="checkbox"
             label="Mostra gli ordini cancellati"

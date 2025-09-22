@@ -2,23 +2,26 @@
 .tk-page {
   display: flex;
   flex-direction: column;
-  min-height: 105vh; 
   padding: 1.45vh 1.93vw; 
   background: #f9fafb;
   color: #182825;
-  margin-top: 4.6vh;
   box-sizing: border-box;
+
+  min-height: calc(100vh - 6vh);
+  padding-top: 6vh;
+  margin-top: 0;
 }
+
+
 
 /* ----- Header ----- */
 .tk-header {
   text-align: center;
-  margin: 4.6vh 1.93vw 1.93vh;
 }
 
 .tk-header h1,
 .tk-summary-header h1 {
-  font-size: clamp(2.3vw, 2.76vw, 3.22vw); /* mantiene l’header invariato */
+  font-size: clamp(2.3vw, 2.76vw, 3.22vw);
   font-weight: 700;
   color: #016FB9;
   margin-top: 2.76vh;
@@ -53,6 +56,14 @@
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
+/* Titolo dell'ordine */
+.order-card h3 {
+  font-size: clamp(1.5rem, 1.8vw, 2rem); /* leggermente più piccolo */
+  font-weight: 700;
+  color: #016FB9;
+  margin-bottom: 0.6rem;
+}
+
 .tk-order-card:hover {
   box-shadow: 0 0.29vh 0.676vh rgba(0,0,0,0.105);
   border-color: #22AED1;
@@ -68,6 +79,30 @@
   margin-bottom: 0.772vh; 
   padding-bottom: 0.772vh; 
 }
+
+/* Testo delle informazioni dell'ordine */
+.order-card .order-info strong {
+  font-size: clamp(0.95rem, 1.05vw, 1.1rem);
+  color: #016FB9;
+}
+
+.order-card .order-info span {
+  font-size: clamp(0.9rem, 1vw, 1rem); 
+  color: #182825;
+}
+
+/* Stato ordine */
+.order-card .order-status {
+  font-size: clamp(0.95rem, 1.05vw, 1.1rem);
+  font-weight: 600;
+  margin-top: 0.4rem;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+}
+
+
+
 
 /* ----- Order form ----- */
 .order-form {
@@ -224,6 +259,7 @@
   transform: translateY(-0.193vh);
   background: #4b8ea0;
 }
+
 
 /* ----- Order summary ----- */
 .tk-order-summary {

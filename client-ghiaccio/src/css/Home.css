@@ -6,9 +6,12 @@
   padding: 5vh 5vw;
   background: linear-gradient(135deg, #f9fafb, #eef6fb);
   color: #182825;
-  margin-top: 6vh;
   font-family: "Inter", "Segoe UI", Roboto, sans-serif;
   box-sizing: border-box;
+
+  min-height: calc(100vh - 6vh);
+  padding-top: 6vh;
+  margin-top: 0;
 }
 
 /* ----- Header ----- */
