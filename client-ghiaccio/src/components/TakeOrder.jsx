@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -40,6 +40,7 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
   const [errors, setErrors] = useState({});
   const [showTipologiaError, setShowTipologiaError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // stato caricamento globale
 
   // Popola il form se viene passato un ordine (modifica)
   useEffect(() => {
@@ -51,15 +52,10 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       let parsedDate;
       if (order.delivery_date.includes("-")) {
         const parts = order.delivery_date.split("-");
-        if (parts[0].length === 4) {
-          // formato YYYY-MM-DD
-          parsedDate = new Date(order.delivery_date);
-        } else {
-          // formato DD-MM-YYYY
-          parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-        }
+        parsedDate = parts[0].length === 4
+          ? new Date(order.delivery_date) // YYYY-MM-DD
+          : new Date(parts[2], parts[1] - 1, parts[0]); // DD-MM-YYYY
       } else if (order.delivery_date.includes("/")) {
-        // converto DD/MM/YYYY
         const parts = order.delivery_date.split("/");
         parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
       }
@@ -153,19 +149,18 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
 
   const handleSubmitOrder = useCallback(async (e) => {
     if (e) e.preventDefault();
+
     const validationErrors = validate();
     setErrors(validationErrors);
     setShowTipologiaError(!form.tipologia);
 
     if (Object.keys(validationErrors).length > 0) return;
 
+    setIsLoading(true);
     try {
-      // normalizza la data prima di salvare
       const finalForm = { ...form };
       if (form.data) {
-        // Assumo formato "dd-mm-yyyy"; ricavo nuovo date
         const parts = form.data.split("-");
-        // invertire ordine se necessario
         const normalizedDate = new Date(parts[2], parts[1] - 1, parts[0]);
         finalForm.data = formatDate(normalizedDate);
       }
@@ -175,10 +170,13 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       } else {
         await userUpdateOrder(finalForm, location.state.order.id);
       }
+
       setConfirmedOrder(true);
       navigate("/");
     } catch (err) {
       alert("Errore invio ordine: " + err);
+    } finally {
+      setIsLoading(false);
     }
   }, [form, validate, location.state, navigate, setConfirmedOrder]);
 
@@ -259,7 +257,6 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
   };
 
   const renderTimePickerWithTooltip = () => {
-    // calcola allowedTimes una sola volta
     const allowedTimes = useMemo(() => {
       const times = [];
       for (let h = 8; h <= 23; h++) {
@@ -320,6 +317,15 @@ function TakeOrder({ handleLogoutWrapper, user, isAuth, isAdmin, setConfirmedOrd
       </div>
     );
   }, [form.tipologia, errors.tipologia, showTipologiaError, withTooltip]);
+
+  if (isLoading) {
+    return (
+      <div className="auth-loading-container">
+        <div className="spinner" role="status" aria-label="Loading spinner" />
+        Caricamento...
+      </div>
+    );
+  }
 
   return (
     <div className="tk-page">

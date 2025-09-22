@@ -10,7 +10,7 @@ import MyNavbar from "./MyNavbar";
 function OrderList({ handleLogoutWrapper, isAuth }) {
   const navigate = useNavigate();
 
-  // Stati principali
+  // ---------- Stati principali ----------
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,9 +23,9 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
   const [sortReverse, setSortReverse] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterIceType, setFilterIceType] = useState("all");
-  const [hideCancelled, setHideCancelled] = useState(true); // Nuovo: mostra/nascondi ordini cancellati
+  const [hideCancelled, setHideCancelled] = useState(true);
 
-  // Caricamento ordini
+  // ---------- Funzioni ----------
   const loadOrders = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -38,7 +38,6 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
     }
   }, []);
 
-  // Redirect se non autenticato + caricamento iniziale
   useEffect(() => {
     if (!isAuth) {
       navigate("/");
@@ -47,7 +46,6 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
     }
   }, [isAuth, navigate, loadOrders]);
 
-  // Calcolo tempo rimanente
   const getTimeRemaining = (deliveryDate, deliveryHour) => {
     const [day, month, year] = deliveryDate.split("-");
     const delivery = new Date(`${year}-${month}-${day}T${deliveryHour}`);
@@ -63,56 +61,42 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
     };
   };
 
-  // Formatta data in DD-MM-YYYY
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString("it-IT");
+    return isNaN(d) ? dateStr : d.toLocaleDateString("it-IT");
   };
 
-  // Parsing robusto di una data + ora
   const parseDateTime = (dateStr, timeStr) => {
     const [part1, part2, part3] = dateStr.split("-");
     let year, month, day;
-
-    if (part1.length === 4) {
-      // formato YYYY-MM-DD
-      [year, month, day] = [part1, part2, part3];
-    } else {
-      // formato DD-MM-YYYY
-      [day, month, year] = [part1, part2, part3];
-    }
-
+    if (part1.length === 4) [year, month, day] = [part1, part2, part3];
+    else[day, month, year] = [part1, part2, part3];
     const [hour, min] = timeStr.split(":");
     return new Date(+year, +month - 1, +day, +hour, +min);
   };
 
-  // Modifica ordine
   const handleModifyOrder = (order) => {
     navigate("/make-order", { state: { order } });
   };
 
-  // Mostra popup conferma cancellazione
   const handleShowConfirm = (orderId) => {
     setSelectedOrderId(orderId);
     setShowConfirmPopup(true);
   };
 
-  // Conferma cancellazione
   const handleConfirmDelete = async () => {
     if (!selectedOrderId) return;
     try {
       await userDeleteOrder(selectedOrderId);
       setShowConfirmPopup(false);
       setSelectedOrderId(null);
-      await loadOrders(); // ricarica lista aggiornata
+      await loadOrders();
     } catch (err) {
       console.error("Errore nella cancellazione dell'ordine:", err);
     }
   };
 
-  // Applica filtri + ordinamento
   const filteredAndSortedOrders = useMemo(() => {
     return [...orders]
       .filter(
@@ -123,7 +107,6 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
       )
       .sort((a, b) => {
         let result = 0;
-
         switch (sortKey) {
           case "request_date":
             result = parseDateTime(b.request_date, b.request_hour) - parseDateTime(a.request_date, a.request_hour);
@@ -141,18 +124,17 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
             result = a.status.localeCompare(b.status);
             break;
           case "time":
-            const timeA = getTimeRemaining(a.delivery_date, a.delivery_hour);
-            const timeB = getTimeRemaining(b.delivery_date, b.delivery_hour);
-            result = timeA.totalHours - timeB.totalHours;
+            result = getTimeRemaining(a.delivery_date, a.delivery_hour).totalHours -
+              getTimeRemaining(b.delivery_date, b.delivery_hour).totalHours;
             break;
           default:
             break;
         }
-
         return sortReverse ? -result : result;
       });
   }, [orders, filterStatus, filterIceType, hideCancelled, sortKey, sortReverse]);
 
+  // ---------- Render ----------
   return (
     <>
       <MyNavbar handleLogoutWrapper={handleLogoutWrapper} isAuth={isAuth} />
@@ -188,8 +170,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
                 ))}
               </Dropdown.Menu>
             </Dropdown>
-
-            <Button className="invert-btn" onClick={() => setSortReverse((prev) => !prev)}>
+            <Button className="invert-btn" onClick={() => setSortReverse(prev => !prev)}>
               {sortReverse ? "↓" : "↑"}
             </Button>
           </div>
@@ -215,7 +196,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => setFilterIceType("all")}>Tutti</Dropdown.Item>
-              {Array.from(new Set(orders.map((o) => o.ice_type))).map((type) => (
+              {Array.from(new Set(orders.map(o => o.ice_type))).map((type) => (
                 <Dropdown.Item key={type} onClick={() => setFilterIceType(type)}>
                   {type}
                 </Dropdown.Item>
@@ -227,7 +208,7 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
             type="checkbox"
             label="Mostra gli ordini cancellati"
             checked={!hideCancelled}
-            onChange={() => setHideCancelled((prev) => !prev)}
+            onChange={() => setHideCancelled(prev => !prev)}
             className="mt-3"
           />
         </aside>
@@ -237,26 +218,27 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
           <div className="orderlist-header">
             <h1>I tuoi Ordini</h1>
             <p className="orderlist-info">
-              <strong>Attenzione:</strong> Gli ordini si possono modificare o cancellare solo entro 72h prima della
-              consegna.
+              <strong>Attenzione:</strong> Gli ordini si possono modificare o cancellare solo entro 72h prima della consegna.
             </p>
           </div>
 
           {isLoading ? (
-            <div className="loading">
-              <Spinner animation="border" />
+            <div className="no-orders">
+              <div className="auth-loading-container">
+                <div className="spinner" role="status" aria-label="Loading spinner" />
+                Caricamento...
+              </div>
             </div>
           ) : filteredAndSortedOrders.length === 0 ? (
             <p className="no-orders">Nessun ordine disponibile</p>
           ) : (
             <div className="orderlist-cards">
-              {filteredAndSortedOrders.map((order) => {
+              {filteredAndSortedOrders.map(order => {
                 const { days, hours, expired, totalHours } = getTimeRemaining(order.delivery_date, order.delivery_hour);
 
                 return (
                   <div key={order.id} className="order-card">
                     <h3>Ordine #{order.id}</h3>
-
                     <div className="order-info"><strong>Quantità</strong><span>{order.quantity} kg</span></div>
                     <div className="order-info"><strong>Tipo ghiaccio</strong><span>{order.ice_type}</span></div>
                     <div className="order-info"><strong>Richiesto il</strong><span>{formatDate(order.request_date)} - {order.request_hour}</span></div>
@@ -265,21 +247,14 @@ function OrderList({ handleLogoutWrapper, isAuth }) {
 
                     {!expired && (
                       <div className="order-info">
-                        <strong>Tempo alla consegna</strong>
-                        <span>{days} giorni {hours} ore</span>
+                        <strong>Tempo alla consegna</strong><span>{days} giorni {hours} ore</span>
                       </div>
                     )}
 
-                     <span
-                      className={`order-status ${order.status === "in attesa"
-                        ? "attesa"
-                        : order.status === "in consegna"
-                          ? "consegna"
-                          : order.status === "completato"
-                            ? "completato"
-                            : "cancellato"
-                        }`}
-                    >
+                    <span className={`order-status ${order.status === "in attesa" ? "attesa" :
+                      order.status === "in consegna" ? "consegna" :
+                        order.status === "completato" ? "completato" : "cancellato"
+                      }`}>
                       {order.status}
                     </span>
 
