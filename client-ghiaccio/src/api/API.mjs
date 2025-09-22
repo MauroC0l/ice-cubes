@@ -77,7 +77,7 @@ export const fetchUserOrders = () =>
 // Delete user order
 export const deleteUserOrder = (orderId) => {
   return fetch(`${API_BASE}/delete-order/${orderId}`, {
-    method: 'DELETE',
+    method: 'PUT',
     credentials: 'include'
   }).then(() => { return; });
 };

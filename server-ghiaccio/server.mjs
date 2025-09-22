@@ -263,11 +263,46 @@ app.put('/api/update-order/:orderId', isAuthenticated, async (req, res) => {
 });
 
 // Delete user order
-app.delete('/api/delete-order/:orderId', isAuthenticated, async (req, res) => {
+app.put('/api/delete-order/:orderId', isAuthenticated, async (req, res) => {
   try {
+    // Ottieni la data/ora attuale
+    const now = new Date();
+    const request_date = now.toLocaleDateString("it-IT"); // es: 12/09/2025
+    const request_hour = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); // es: 14:30
+
+    // Estrai i dati dal body
+    const { quantita, tipologia, indirizzo, data, orario, nome, cognome, telefono } = req.body;
+
+    // Recupera utente dal DB
+    let user = await dao.getUserByPhoneNumber(telefono); 
+
+    // Determina user_id
+    let user_id;
+    if (user) {
+      user_id = user.id;
+    } else {
+      user_id = telefono; // fallback: numero di telefono come identificativo
+    }
+
+    // Crea l’oggetto ordine coerente con il tuo schema
+    const order = {
+      quantity: quantita,
+      ice_type: tipologia,
+      delivery_address: indirizzo,
+      delivery_date: data,
+      delivery_hour: orario,
+      request_date,
+      request_hour,
+      status: "cancellato",
+      user_id
+    };
+
     const orderId = req.params.orderId;
-    await dao.deleteOrder(orderId);
-    return res.json({ success: true });
+
+    // Salva l’ordine nel DB
+    await dao.updateOrder(order, orderId);
+
+    return res.json({ success: true, order });
   } catch (err) {
     console.error("Error deleting order:", err);
     return res.status(500).json({ success: false, message: "Internal server error" });
