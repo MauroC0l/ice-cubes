@@ -3,7 +3,7 @@ MODIFICARE FREEZER AFFINCHè CONTENGA UNA LISTA DI ICEBAG, MODIFICARE POI TUTTO 
 
 IMPORTANTI
 - Inserire la modifica del profilo
-- Fare la visuale dell'admin
+- Fare la visuale dell'admin (utilizzare un CSM? Quale?)
 
 MEDIE
 - Far fare al server, periodicamente una funzione per controllare se data consegna è passata e cambiare lo stato dell'ordine
