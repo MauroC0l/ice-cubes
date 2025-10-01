@@ -27,12 +27,22 @@ export class User {
 }
 
 export class Freezer {
-    constructor({ id = null, name, n_bags, n_kg, n_kg_max }) {
+    constructor({ id = null, name, n_bags, n_kg, n_kg_max, listIceBags = [] }) {
         this.id = id;
         this.name = name;
         this.n_bags = n_bags;               // Number of bags
         this.n_kg = n_kg;                   // Total weight in kg
         this.n_kg_max = n_kg_max;           // Maximum weight in kg
+        this.listIceBags = listIceBags;     // List of IceBag objects
+    }
+}
+
+export class IceBag {
+    constructor({ id = null, weight = 3, type, freezer_id = null }) {
+        this.id = id;
+        this.type = type;              // 'consumazione', 'raffreddare'
+        this.weight = weight;          // Weight in kg (default 3kg)
+        this.freezer_id = freezer_id;  // Foreign key to Freezer
     }
 }
 

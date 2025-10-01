@@ -1,31 +1,43 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import { User, Freezer, Order } from './models.mjs';
+import { User, Freezer, Order, IceBag } from './models.mjs';
 
 const databaseName = 'iceDatabase.sqlite';
 
 // Utenti iniziali
 const createdUserList = await Promise.all([
     User.create("riccardo", "riccardo@example.com", "cognome", "311111111", "password1", "customer"),
-    User.create("mauro", "mauro@example.com", "cognome", "322222222", "password2", "customer"),
-    User.create("giovanni", "giovanni@example.com", "cognome", "333333333", "password3", "customer"),
-    User.create("luca", "luca@example.com", "cognome", "344444444", "password4", "customer"),
     User.create("admin", "admin@admin.com", "cognome", "355555555", "admin", "admin"),
 ]);
 
 // Freezers iniziali
 const retrievedFreezerList = [
-    new Freezer({ id: 1, name: "Freezer A", n_bags: 10, n_kg: 50, n_kg_max: 100 }),
-    new Freezer({ id: 2, name: "Freezer B", n_bags: 20, n_kg: 80, n_kg_max: 200 }),
-    new Freezer({ id: 3, name: "Freezer C", n_bags: 15, n_kg: 60, n_kg_max: 150 }),
+    new Freezer({ name: "Freezer 1", n_bags: 4, n_kg: 12, n_kg_max: 30, listIceBags: [] }),
 ];
 
 // Ordini iniziali
 const createdOrderList = [
-    new Order({ id: 1, quantity: 10, request_date: "2023-10-01", delivery_date: "2023-10-02", ice_type: "consumazione", status: "in attesa" }),
-    new Order({ id: 2, quantity: 20, request_date: "2023-10-03", delivery_date: "2023-10-04", ice_type: "raffreddare", status: "in attesa" }),
-    new Order({ id: 3, quantity: 15, request_date: "2023-10-05", delivery_date: "2023-10-06", ice_type: "raffreddare", status: "in attesa" })
+    new Order({ quantity: 6, request_date: "2023-10-01", delivery_date: "2023-10-03", delivery_address: "Indirizzo di prova 1", ice_type: "consumazione", status: "in attesa", user_id: 1  }),
+    new Order({ quantity: 9, request_date: "2023-10-02", delivery_date: "2023-10-04", delivery_address: "Indirizzo di prova 2", ice_type: "raffreddare", status: "in consegna", user_id: 1  }),
+    new Order({ quantity: 3, request_date: "2023-10-03", delivery_date: "2023-10-05", delivery_address: "Indirizzo di prova 3", ice_type: "consumazione", status: "completato", user_id: 1  }),
+    new Order({ quantity: 12, request_date: "2023-10-04", delivery_date: "2023-10-06", delivery_address: "Indirizzo di prova 4", ice_type: "raffreddare", status: "cancellato", user_id: 1 }),
+    new Order({ quantity: 15, request_date: "2023-10-05", delivery_date: "2023-10-07", delivery_address: "Indirizzo di prova 5", ice_type: "consumazione", status: "in attesa", user_id: 1 }),
 ];
+
+
+const createBagList = [
+    new IceBag({ id: 1, weight: 3, type: "consumazione", freezer_id: 1 }),
+    new IceBag({ id: 2, weight: 3, type: "consumazione", freezer_id: 1 }),
+    new IceBag({ id: 3, weight: 3, type: "raffreddare", freezer_id: 2 }),
+    new IceBag({ id: 4, weight: 3, type: "raffreddare", freezer_id: 2 }),
+    new IceBag({ id: 5, weight: 3, type: "consumazione", freezer_id: 3 }),
+    new IceBag({ id: 6, weight: 3, type: "raffreddare", freezer_id: 3 }),
+    new IceBag({ id: 7, weight: 3, type: "consumazione", freezer_id: 3 }),
+    new IceBag({ id: 8, weight: 3, type: "raffreddare", freezer_id: 1 }),
+    new IceBag({ id: 9, weight: 3, type: "consumazione", freezer_id: 2 }),
+    new IceBag({ id: 10, weight: 3, type: "raffreddare", freezer_id: 1 }),
+    new IceBag({ id: 11, weight: 3, type: "consumazione", freezer_id: 2 }),
+]
 
 async function setupDatabase() {
     const db = await open({
@@ -67,6 +79,14 @@ async function setupDatabase() {
         status TEXT NOT NULL,
         user_id INTEGER NOT NULL,
         FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
+    )`);
+
+    await db.run(`CREATE TABLE IF NOT EXISTS ice_bag (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        weight INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        freezer_id INTEGER NOT NULL,
+        FOREIGN KEY(freezer_id) REFERENCES freezer(id) ON DELETE CASCADE
     )`);
 
     await insertData(db);
@@ -120,6 +140,22 @@ async function insertData(db) {
     }
     await sqlInsertOrder.finalize();
     console.log("✅ Orders inserted successfully!");
+
+    // Inserimento sacchi di ghiaccio
+    const sqlInsertBag = await db.prepare(
+        `INSERT INTO ice_bag(weight, type, freezer_id) VALUES (?, ?, ?)`
+    );
+
+    for (const bag of createBagList) {
+        try {
+            const result = await sqlInsertBag.run(bag.weight, bag.type, bag.freezer_id);
+            bag.id = result.lastID;
+        } catch (err) {
+            console.error("❌ Error inserting ice bag:", err.message);
+        }
+    }
+    await sqlInsertBag.finalize();
+    console.log("✅ Ice bags inserted successfully");
 }
 
 setupDatabase()

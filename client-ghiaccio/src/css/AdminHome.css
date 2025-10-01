@@ -1,0 +1,95 @@
+/* ----- Container centrato ----- */
+.adminHome-content {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  padding: 2rem;
+  animation: fadeIn 0.8s ease;
+}
+
+/* ----- Cards ----- */
+.adminHome-card {
+  flex: 0 1 340px;
+  background: linear-gradient(160deg, #ffffff, #f7fbff);
+  border-radius: 1.2rem;
+  padding: 2rem 2.2rem;
+  box-shadow: 0 8px 20px rgba(1, 111, 185, 0.12);
+  border: 1px solid rgba(1, 111, 185, 0.08);
+  text-align: left;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.adminHome-card::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle at center, rgba(34,174,209,0.08), transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+.adminHome-card:hover {
+  transform: translateY(-0.6vh) scale(1.02);
+  box-shadow: 0 14px 30px rgba(1, 111, 185, 0.18);
+  border-color: #22AED1;
+}
+
+.adminHome-card h3 {
+  color: #016FB9;
+  font-size: 1.5rem;   /* prima 1.6rem */
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  border-left: 4px solid #22AED1;
+  padding-left: 0.6rem;
+}
+
+
+
+/* ----- Stats dentro le cards ----- */
+.card-stats p {
+  margin: 0.6rem 0;
+  font-size: 1.1rem;   /* prima 1rem */
+  font-weight: 500;
+  color: #182825;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-stats p span {
+  font-weight: 600;
+  color: #016FB9;
+  font-size: 1.2rem;  /* leggermente più grande per enfasi */
+}
+/* ----- Bottone ordini ----- */
+.orders-btn {
+  display: block;             
+  margin: 1.5rem auto 0;      
+  background: linear-gradient(135deg, #016FB9, #22AED1);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.6rem;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.orders-btn:hover {
+  background: linear-gradient(135deg, #015a9b, #1b8ca7);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(1, 111, 185, 0.25);
+}
+
+/* ----- Animazione ingresso ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

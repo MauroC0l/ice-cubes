@@ -1,14 +1,13 @@
 
+MODIFICARE FREEZER AFFINCHè CONTENGA UNA LISTA DI ICEBAG, MODIFICARE POI TUTTO IL DB SETUP
 
 IMPORTANTI
 - Inserire la modifica del profilo
-- Visuale dell'admin
+- Fare la visuale dell'admin
 
 MEDIE
-- Far si che l'admin possa inserire degli ordini
 - Far fare al server, periodicamente una funzione per controllare se data consegna è passata e cambiare lo stato dell'ordine
-- state "loading" funziona?
-- 
+- Inserire nei valori di ritorno del server la variabile per verificarne lo stato (ho trovare un modo alternativo)
 
 INUTILI
 
@@ -25,3 +24,4 @@ FATTE:
 - Gesire ordini e login/LOGOUT
 - sovrapporre correttamente il colore di intestazione nei menù a tendina nella selezione della data e dell'ora in TakeOrder
 - Pulsanti cancella ordine
+- state "loading" funziona (HOME, LOGIN, TakeOrder, OrderList)
